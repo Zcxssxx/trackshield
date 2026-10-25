@@ -4,4 +4,5 @@ import {
   "Zcxssxx/trackshield/gpx",
   "Zcxssxx/trackshield/model",
   "Zcxssxx/trackshield/report",
+  "Zcxssxx/trackshield/redact",
 }

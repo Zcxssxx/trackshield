@@ -62,6 +62,8 @@ pub fn make_redaction_options(@model.GeoPoint, Double, Array[@model.MetadataCate
 
 pub fn max_distance_from_center(Array[@model.GeoPoint], @model.GeoPoint) -> Double
 
+pub fn preview_redaction(@model.GpxInput, @model.RedactionOptions, @model.InputLimits) -> @model.RedactionPreview
+
 pub fn render_json(@model.AuditReport) -> String
 
 pub fn render_text(@model.AuditReport) -> String

@@ -2,11 +2,14 @@
 package "Zcxssxx/trackshield/gpx"
 
 import {
+  "2973181701/moongpx",
   "Zcxssxx/trackshield/model",
 }
 
 // Values
 pub fn inspect_gpx(@model.GpxInput, @model.InputLimits) -> @model.FileInspection
+
+pub fn parse_input(@model.GpxInput, @model.InputLimits) -> Result[@moongpx.Gpx, Array[@model.Diagnostic]]
 
 // Errors
 

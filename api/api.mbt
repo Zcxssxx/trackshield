@@ -70,3 +70,15 @@ pub using @report {render_text}
 ///|
 /// Stable JSON rendering of an audit report.
 pub using @report {render_json}
+
+///|
+/// Pure preview for an explicitly supplied circle, independent of audit output.
+/// Counts removed points of every kind, additional track segments, omitted empty
+/// routes, standalone waypoints, and selected fields on retained structures.
+pub fn preview_redaction(
+  input : GpxInput,
+  options : RedactionOptions,
+  limits : InputLimits,
+) -> RedactionPreview {
+  @redact.preview_redaction(input, options, limits)
+}

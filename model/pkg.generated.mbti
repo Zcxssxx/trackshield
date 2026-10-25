@@ -60,6 +60,8 @@ pub fn make_metadata_finding(String, MetadataCategory, Int32, Int32) -> Metadata
 
 pub fn make_redaction_options(GeoPoint, Double, Array[MetadataCategory]) -> Result[RedactionOptions, Diagnostic]
 
+pub fn make_redaction_preview(String, Int32, Int32, Int32, Int32, Int32, Bool, Array[Diagnostic]) -> RedactionPreview
+
 pub fn make_repeated_location(String, Int32, Int32, Array[EndpointEvidence], GeoPoint?, Double?, Bool) -> RepeatedLocation
 
 // Errors

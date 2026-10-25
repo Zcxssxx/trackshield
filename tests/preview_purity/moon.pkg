@@ -1,0 +1,7 @@
+// Filesystem inspection belongs only to this integration test boundary.
+import {
+  "Zcxssxx/trackshield/api",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/core/encoding/utf8",
+} for "test"

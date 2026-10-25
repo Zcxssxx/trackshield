@@ -20,6 +20,30 @@ pub struct RedactionPreview {
 }
 
 ///|
+/// Build counts without retaining source coordinates, timestamps, or metadata.
+pub fn make_redaction_preview(
+  source_path : String,
+  points_removed : Int32,
+  segments_created : Int32,
+  routes_removed : Int32,
+  waypoints_removed : Int32,
+  metadata_fields_removed : Int32,
+  output_would_be_empty : Bool,
+  diagnostics : Array[Diagnostic],
+) -> RedactionPreview {
+  {
+    source_path,
+    points_removed,
+    segments_created,
+    routes_removed,
+    waypoints_removed,
+    metadata_fields_removed,
+    output_would_be_empty,
+    diagnostics: diagnostics.copy(),
+  }
+}
+
+///|
 /// Redacted bytes paired with the preview for the same input and options.
 pub struct RedactedFile {
   bytes : Bytes
