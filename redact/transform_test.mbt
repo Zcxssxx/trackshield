@@ -348,3 +348,110 @@ test "transform guards source and generated candidate size limits" {
     Ok(_) => fail("candidate limit")
   }
 }
+
+///|
+test "review empty segment retains direct CDATA" {
+  let body = "<trk><trkseg><![CDATA[private 😀 <opaque>]]></trkseg><trkseg><trkpt lat=\"1\" lon=\"1\"/></trkseg></trk>"
+  let file = transformed(body, [])
+  assert_eq(file.bytes, input(body).bytes)
+  assert_eq(parsed(file).tracks[0].segments.length(), 2)
+}
+
+///|
+test "review empty segment retains direct text" {
+  let body = "<trk><trkseg>private 😀 &amp; opaque</trkseg><trkseg><trkpt lat=\"1\" lon=\"1\"/></trkseg></trk>"
+  let file = transformed(body, [])
+  assert_eq(file.bytes, input(body).bytes)
+  assert_eq(parsed(file).tracks[0].segments.length(), 2)
+}
+
+///|
+test "review split segment refuses direct CDATA" {
+  let body = "<trk><trkseg><trkpt lat=\"1\" lon=\"1\"/><![CDATA[opaque owner 😀]]><trkpt lat=\"0\" lon=\"0\"/><trkpt lat=\"2\" lon=\"2\"/></trkseg></trk>"
+  match
+    @redact.redact_gpx(input(body), options([]), @model.default_input_limits()) {
+    Err(d) => assert_eq(d.code, "gpx.lossless_redaction_unsupported")
+    Ok(_) => fail("split CDATA ownership is ambiguous")
+  }
+}
+
+///|
+test "review split segment refuses direct text" {
+  let body = "<trk><trkseg><trkpt lat=\"1\" lon=\"1\"/>opaque &amp; private<trkpt lat=\"0\" lon=\"0\"/><trkpt lat=\"2\" lon=\"2\"/></trkseg></trk>"
+  match
+    @redact.redact_gpx(input(body), options([]), @model.default_input_limits()) {
+    Err(d) => assert_eq(d.code, "gpx.lossless_redaction_unsupported")
+    Ok(_) => fail("split text ownership is ambiguous")
+  }
+}
+
+///|
+test "review retained empty segment counts selected extensions exactly" {
+  for
+    (opening, content) in [
+      ("<trkseg>", "<custom>keep</custom>"),
+      ("<trkseg custom=\"keep\">", ""),
+      ("<trkseg>", "<![CDATA[keep 😀]]>"),
+      ("<trkseg>", "keep &amp; opaque"),
+    ] {
+    let extensions = "<extensions><x xmlns=\"urn:test\">remove</x></extensions>"
+    let body = "<trk>" +
+      opening +
+      content +
+      extensions +
+      "</trkseg><trkseg><trkpt lat=\"1\" lon=\"1\"/></trkseg></trk>"
+    let opts = options([@model.Extensions, @model.Extensions])
+    let before = @redact.preview_redaction(
+      input(body),
+      opts,
+      @model.default_input_limits(),
+    )
+    let file = @redact.redact_gpx(
+      input(body),
+      opts,
+      @model.default_input_limits(),
+    ).unwrap()
+    assert_eq(before.metadata_fields_removed, 1)
+    assert_eq(file.preview.metadata_fields_removed, 1)
+    assert_eq(
+      file.preview.metadata_fields_removed,
+      before.metadata_fields_removed,
+    )
+    assert_eq(file.bytes, input(body.replace(old=extensions, new="")).bytes)
+    assert_eq(parsed(file).tracks[0].segments.length(), 2)
+  }
+}
+
+///|
+test "review omitted segment and track exclude their selected metadata" {
+  for
+    body in [
+      "<trk><trkseg custom=\"keep\"><trkpt lat=\"0\" lon=\"0\"/><custom>keep</custom><extensions><x xmlns=\"urn:test\"/></extensions></trkseg><trkseg><trkpt lat=\"1\" lon=\"1\"/></trkseg></trk>",
+      "<wpt lat=\"1\" lon=\"1\"/><trk><trkseg custom=\"keep\"><custom>keep</custom><extensions><x xmlns=\"urn:test\"/></extensions></trkseg><trkseg><trkpt lat=\"0\" lon=\"0\"/></trkseg></trk>",
+      "<trk><trkseg><extensions><x xmlns=\"urn:test\"/></extensions></trkseg><trkseg><trkpt lat=\"1\" lon=\"1\"/></trkseg></trk>",
+    ] {
+    let before = preview(body, [@model.Extensions])
+    let file = transformed(body, [@model.Extensions])
+    assert_eq(before.metadata_fields_removed, 0)
+    assert_eq(file.preview.metadata_fields_removed, 0)
+    assert_false(file.bytes == input(body).bytes)
+    assert_eq(
+      parsed(file).tracks.fold(init=0, fn(total, track) {
+        total + track.segments.length()
+      }),
+      if parsed(file).tracks.length() == 0 {
+        0
+      } else {
+        1
+      },
+    )
+  }
+}
+
+///|
+test "review ordinary formatting whitespace does not prevent splitting" {
+  let body = "<trk><trkseg>\r\n  <trkpt lat=\"1\" lon=\"1\"/>\n\t<trkpt lat=\"0\" lon=\"0\"/>\r\n <trkpt lat=\"2\" lon=\"2\"/>\n</trkseg></trk>"
+  let file = transformed(body, [])
+  assert_eq(parsed(file).tracks[0].segments.length(), 2)
+  assert_eq(file.preview.segments_created, 1)
+}

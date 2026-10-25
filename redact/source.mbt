@@ -6,6 +6,7 @@ priv struct SourceElement {
   open_end : Int32
   mut end : Int32
   children : Array[SourceElement]
+  mut has_opaque_content : Bool
 }
 
 ///|
@@ -31,6 +32,7 @@ fn source_tree(source : String) -> Result[SourceElement, Unit] {
           open_end: event.span.end.offset,
           end: event.span.end.offset,
           children: [],
+          has_opaque_content: false,
         }
         if stack.length() > 0 {
           stack[stack.length() - 1].children.push(node)
@@ -42,6 +44,17 @@ fn source_tree(source : String) -> Result[SourceElement, Unit] {
         }
       }
       End(_) => stack.pop().unwrap().end = event.span.end.offset
+      Text(value) | CData(value) =>
+        if stack.length() > 0 &&
+          !value
+          .iter()
+          .all(fn(c) { c == ' ' || c == '\t' || c == '\r' || c == '\n' }) {
+          stack[stack.length() - 1].has_opaque_content = true
+        }
+      Comment(_) | PI(..) =>
+        if stack.length() > 0 {
+          stack[stack.length() - 1].has_opaque_content = true
+        }
       _ => ()
     }
   }
@@ -49,6 +62,71 @@ fn source_tree(source : String) -> Result[SourceElement, Unit] {
     Some(root) => Ok(root)
     None => Err(())
   }
+}
+
+///|
+/// Fields with segment-level ownership cannot be assigned to newly split runs.
+/// This predicate also decides whether an originally empty segment must survive.
+fn segment_has_unselected_content(
+  node : SourceElement,
+  options : @model.RedactionOptions,
+) -> Bool {
+  node.has_opaque_content ||
+  node.element.attributes.any(fn(a) {
+    a.name != "xmlns" && !a.name.has_prefix("xmlns:")
+  }) ||
+  node.children.any(fn(c) {
+    c.element.name != "trkpt" &&
+    !remove_element("segment", c.element.name, options)
+  })
+}
+
+///|
+fn retain_originally_empty_segment(
+  node : SourceElement,
+  options : @model.RedactionOptions,
+) -> Bool {
+  !node.children.any(fn(c) { c.element.name == "trkpt" }) &&
+  segment_has_unselected_content(node, options)
+}
+
+///|
+/// The GPX model omits opaque segment content. Consult source ownership so preview
+/// counts the selected fields removed from retained, originally empty segments.
+/// The enclosing track must retain point content, otherwise all its fields go
+/// away with their parent and contribute no selected-field removals.
+fn retained_empty_segment_metadata_count(
+  input : @model.GpxInput,
+  options : @model.RedactionOptions,
+) -> Result[Int32, Unit] {
+  if !selected(options, @model.Extensions) {
+    return Ok(0)
+  }
+  let source = @utf8.decode(input.bytes) catch { _ => return Err(()) }
+  let root = match source_tree(source) {
+    Ok(root) => root
+    Err(_) => return Err(())
+  }
+  let mut count = 0
+  for track in root.children {
+    if track.element.name == "trk" &&
+      track.children.any(fn(segment) {
+        segment.element.name == "trkseg" &&
+        segment.children.any(fn(point) {
+          point.element.name == "trkpt" && !source_point_inside(point, options)
+        })
+      }) {
+      for segment in track.children {
+        if segment.element.name == "trkseg" &&
+          retain_originally_empty_segment(segment, options) {
+          count += segment.children
+            .filter(fn(child) { child.element.name == "extensions" })
+            .length()
+        }
+      }
+    }
+  }
+  Ok(count)
 }
 
 ///|
@@ -127,16 +205,7 @@ fn rewrite_element(
   if context == "segment" {
     // Splitting cannot assign opaque segment fields to runs without inventing
     // semantics. Namespace declarations alone may be copied to the new wrapper.
-    if runs > 1 &&
-      (
-        node.element.attributes.any(fn(a) {
-          a.name != "xmlns" && !a.name.has_prefix("xmlns:")
-        }) ||
-        node.children.any(fn(c) {
-          c.element.name != "trkpt" &&
-          !remove_element("segment", c.element.name, options)
-        })
-      ) {
+    if runs > 1 && segment_has_unselected_content(node, options) {
       return Err(())
     }
     segments = runs
@@ -145,16 +214,7 @@ fn rewrite_element(
     points == 0 {
     // A pre-existing empty segment can still own unselected fields. Preserve
     // those fields when another segment keeps the parent track alive.
-    if context == "segment" &&
-      !node.children.any(fn(c) { c.element.name == "trkpt" }) &&
-      (
-        node.children.any(fn(c) {
-          !remove_element("segment", c.element.name, options)
-        }) ||
-        node.element.attributes.any(fn(a) {
-          a.name != "xmlns" && !a.name.has_prefix("xmlns:")
-        })
-      ) {
+    if context == "segment" && retain_originally_empty_segment(node, options) {
       return Ok({ text: chunks.join(""), points: 0, segments: 1, })
     }
     return Ok({ text: "", points: 0, segments: 0, })

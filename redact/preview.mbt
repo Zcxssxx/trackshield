@@ -26,7 +26,16 @@ pub fn preview_redaction(
   let mut segments_created = 0
   let mut routes_removed = 0
   let mut waypoints_removed = 0
-  let mut metadata_fields_removed = document_metadata(options, document)
+  let empty_segment_fields_removed = match
+    retained_empty_segment_metadata_count(input, options) {
+    Ok(count) => count
+    Err(_) =>
+      return @model.make_redaction_preview(input.path, 0, 0, 0, 0, 0, false, [
+        lossless_error(input.path),
+      ])
+  }
+  let mut metadata_fields_removed = document_metadata(options, document) +
+    empty_segment_fields_removed
   let mut retained_points = 0
   let diagnostics : Array[@model.Diagnostic] = []
   for point in document.waypoints {
