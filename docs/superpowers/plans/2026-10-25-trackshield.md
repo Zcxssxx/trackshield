@@ -268,14 +268,14 @@ pub fn default_audit_options() -> AuditOptions
 
 **Interfaces:** `preview_redaction(input: GpxInput, options: RedactionOptions, limits: InputLimits) -> RedactionPreview`; the supplied circle is independent of audit findings. Preview computes exact change counts but writes nothing.
 
-- [ ] Test valid and invalid centers/radii, point inclusion at the radius boundary, dateline and high-latitude inclusion, duplicate metadata category selections, and no-op zones.
-- [ ] Test that preview returns counts for track points, new segments, routes, waypoints, and selected metadata; test an input that would become empty.
-- [ ] Implement preview from explicit config only. Do not accept a cluster ID as a center or silently reuse audit output.
-- [ ] Add a library-level test that calling preview creates no filesystem path; the API package must not import filesystem functionality.
-- [ ] Run `moon test redact --deny-warn`.
-- [ ] Commit: `feat: preview explicit-zone GPX redaction`.
+- [x] Test valid/invalid centers and radii, inclusive radius boundary, dateline and polar inclusion, duplicate metadata-category selections, deterministic no-op zones, track splitting/removal patterns, multiple original segments, route/waypoint removal, selected metadata across all categories, and empty output.
+- [x] Verify exact preview counts for removed track/route/waypoint points, additional retained segment runs, empty routes, and selected metadata. `docs/privacy-model.md` defines non-overlapping count semantics and behavior for invalid/unsupported input.
+- [x] Implement preview from explicit options only. No audit or cluster data is accepted or used to infer a zone.
+- [x] Add a real API integration test that observes a directory and source path before/after preview; no path is created, and `api` has no filesystem dependency.
+- [x] Run `moon test redact --deny-warn`. It exits 1 only for `model.RedactedFile` (`struct_never_constructed`), whose producer is Task 12; ordinary `moon test redact` passes 13/13, and the separate purity integration test passes 1/1. No placeholder constructor or warning suppression was added.
+- [x] Commit: `2da0689 feat: preview explicit-zone GPX redaction`; task review approved with no Critical/Important findings. The reviewer recorded the pending warning as Minor until Task 12 constructs `RedactedFile`.
 
-**Acceptance:** preview is pure, deterministic, and reports all affected object counts without writing or inferring a zone.
+**Acceptance:** preview is pure, deterministic, and reports all affected object counts without writing or inferring a zone. The task-specific warning-strict command was run but remains nonzero solely on the result type scheduled for Task 12; final warning-strict verification is pending that producer.
 
 ### Task 12: Transform track, route, waypoint, and selected metadata safely
 
