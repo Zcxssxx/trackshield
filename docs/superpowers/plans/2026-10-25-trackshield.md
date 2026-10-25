@@ -283,15 +283,15 @@ pub fn default_audit_options() -> AuditOptions
 
 **Interfaces:** `redact_gpx(GpxInput, RedactionOptions, InputLimits) -> Result[RedactedFile, Diagnostic]`; implementation removes points inside the explicit circle, splits each retained run into distinct segments, filters routes/waypoints, and removes only selected metadata categories.
 
-- [ ] Write failing transform tests for leading, middle, trailing, consecutive, and all-points redacted runs in one segment; boundary points; multiple original segments; route/waypoint removal; and an empty output.
-- [ ] Write tests where selected creator/name/author/link/track/route/waypoint/timestamp/extension categories are removed while unselected fields remain unchanged.
-- [ ] Write round-trip tests for supported extensions and unknown optional fields. If the dependency cannot preserve an unselected field, return `gpx.lossless_redaction_unsupported` and do not produce bytes that imply successful preservation.
-- [ ] Implement track splitting so no output segment bridges a removed run; omit empty tracks/routes and emit diagnostics. Do not output an empty file when all track, route, and waypoint content is removed.
-- [ ] Re-parse transformed bytes through the same hardened adapter and validate the supported GPX version, point ranges, and expected removal counts before returning `RedactedFile`.
-- [ ] Run `moon test redact --deny-warn` and `moon test --deny-warn`.
-- [ ] Commit: `feat: redact GPX data without bridging removed areas`.
+- [x] Write failing tests for leading/middle/trailing/consecutive/all-point runs, boundary points, multiple segments, route/waypoint removal, and empty output. Add tests for every selected metadata category, preserved unselected fields/extensions/unknown fields, GPX 1.0, inherited namespace bindings, BOM/CRLF/supplementary-plane spans, and stable refusal when opaque metadata cannot be assigned safely.
+- [x] Use UTF-16 source offsets from the exact pinned XML dependency to splice only selected/deleted source ranges. Preserve untouched source. The semantic GPX serializer was rejected after source inspection showed that it drops unknown optional fields and inherited namespaces and upgrades GPX 1.0 to 1.1.
+- [x] Split retained track-point runs into separate segments; remove route/waypoint points inside the inclusive circle; omit empty tracks/routes and refuse an empty result. Reparse every successful candidate through the shared hardened adapter and validate point, segment, route, waypoint, circle, version, and metadata invariants.
+- [x] Add source-span regressions for direct text/CDATA/comments/PIs. Initial review found that direct opaque content on empty/split segments could be lost; the fix tracks it as segment-owned content, preserves it when unambiguous, and refuses ambiguous splits with `gpx.lossless_redaction_unsupported`. Ordinary formatting whitespace remains non-semantic.
+- [x] Align public preview and transformed-result metadata counts for retained originally empty segments. Tests verify exact counts for unselected custom children/attributes, direct CDATA/text, duplicate category choices, and omitted-parent/track controls.
+- [x] Run `moon test redact --deny-warn` (32/32), the preview purity integration tests with warning denial (2/2), and the full `moon test --deny-warn` suite (122/122). `moon check --deny-warn`, `moon fmt --check`, native build, interface generation, and `git diff --check` also pass. The first clean native C build emitted an upstream Windows SDK `EINVAL` macro-redefinition warning; the incremental build after fixes emitted none.
+- [x] Commit feature as `5bcb0c7 feat: redact GPX data without bridging removed areas`; fix review findings in `18f2199 fix: preserve opaque segment content and exact redaction counts`. Combined Task 12 review approved with no Critical/Important findings; the upstream C warning remains Minor.
 
-**Acceptance:** originals are untouched, every written candidate reparses, and all unselected supported fields/extensions match the input semantically.
+**Acceptance:** originals are untouched, every returned candidate reparses, and all unselected supported fields/extensions remain unchanged or the operation fails closed with a stable diagnostic. This is an in-memory transformation; filesystem publication is Task 13.
 
 ### Task 13: Add safe filesystem writes and redaction CLI
 

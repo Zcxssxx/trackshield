@@ -35,6 +35,6 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 
 ## Current gate
 
-- Implementation plan execution is active in the current session on `codex/trackshield-development`. Task 11 is implemented and task-reviewed; feature commit `2da0689` and its ledger commit are recorded. Full tests pass (102/102), including 13 redaction tests and a 1/1 no-filesystem integration test. The only remaining warning is `RedactedFile` not yet constructed; Task 12 owns its producer. Continue with Task 12 (safe GPX transformation).
+- Implementation plan execution is active in the current session on `codex/trackshield-development`. Task 12 is implemented and reviewed; feature commit `5bcb0c7`, fix commit `18f2199`, and the review result are recorded. `moon test --deny-warn` passes 122/122; strict check, formatting, native build, and interface generation pass. Continue with Task 13 (preview-first redaction CLI and safe filesystem writes).
 - Continue local-only work. Do not configure a GitHub remote, browse authenticated GitHub state, create a repository, push, or claim hosted CI status.
 - The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`.
