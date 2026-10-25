@@ -3,8 +3,6 @@ import {
   "Zcxssxx/trackshield/geo",
   "Zcxssxx/trackshield/gpx",
   "2973181701/moongpx",
-}
-
-import {
+  "Milky2018/xml",
   "moonbitlang/core/encoding/utf8",
-} for "test"
+}

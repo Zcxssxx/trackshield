@@ -58,6 +58,8 @@ pub fn make_input_limits(Int32, Int32, Int32, Int32, Int32, Int32) -> Result[Inp
 
 pub fn make_metadata_finding(String, MetadataCategory, Int32, Int32) -> MetadataFinding
 
+pub fn make_redacted_file(Bytes, RedactionPreview) -> RedactedFile
+
 pub fn make_redaction_options(GeoPoint, Double, Array[MetadataCategory]) -> Result[RedactionOptions, Diagnostic]
 
 pub fn make_redaction_preview(String, Int32, Int32, Int32, Int32, Int32, Bool, Array[Diagnostic]) -> RedactionPreview

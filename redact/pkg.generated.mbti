@@ -8,6 +8,8 @@ import {
 // Values
 pub fn preview_redaction(@model.GpxInput, @model.RedactionOptions, @model.InputLimits) -> @model.RedactionPreview
 
+pub fn redact_gpx(@model.GpxInput, @model.RedactionOptions, @model.InputLimits) -> Result[@model.RedactedFile, @model.Diagnostic]
+
 // Errors
 
 // Types and methods

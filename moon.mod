@@ -16,5 +16,6 @@ description = "Offline privacy auditing and explicit-zone redaction for GPX coll
 
 import {
   "2973181701/moongpx@0.1.0",
+  "Milky2018/xml@0.4.1",
   "moonbitlang/async@0.22.5",
 }

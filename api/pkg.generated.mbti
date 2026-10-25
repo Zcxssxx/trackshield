@@ -64,6 +64,8 @@ pub fn max_distance_from_center(Array[@model.GeoPoint], @model.GeoPoint) -> Doub
 
 pub fn preview_redaction(@model.GpxInput, @model.RedactionOptions, @model.InputLimits) -> @model.RedactionPreview
 
+pub fn redact_gpx(@model.GpxInput, @model.RedactionOptions, @model.InputLimits) -> Result[@model.RedactedFile, @model.Diagnostic]
+
 pub fn render_json(@model.AuditReport) -> String
 
 pub fn render_text(@model.AuditReport) -> String

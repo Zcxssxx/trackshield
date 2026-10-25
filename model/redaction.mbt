@@ -51,6 +51,15 @@ pub struct RedactedFile {
 }
 
 ///|
+/// Pair revalidated transformed content with the preview for its source.
+pub fn make_redacted_file(
+  bytes : Bytes,
+  preview : RedactionPreview,
+) -> RedactedFile {
+  { bytes, preview, }
+}
+
+///|
 /// Validate the user-specified clipping radius and retain metadata choices.
 pub fn make_redaction_options(
   center : GeoPoint,

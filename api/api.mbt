@@ -82,3 +82,13 @@ pub fn preview_redaction(
 ) -> RedactionPreview {
   @redact.preview_redaction(input, options, limits)
 }
+
+///|
+/// Transform an explicit circle in memory and return only revalidated bytes.
+pub fn redact_gpx(
+  input : GpxInput,
+  options : RedactionOptions,
+  limits : InputLimits,
+) -> Result[RedactedFile, Diagnostic] {
+  @redact.redact_gpx(input, options, limits)
+}
