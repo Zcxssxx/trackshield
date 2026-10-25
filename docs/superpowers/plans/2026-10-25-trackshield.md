@@ -225,7 +225,7 @@ pub fn default_audit_options() -> AuditOptions
 - [x] Test that duplicate entries in category aggregation do not double-count one source field. Duplicate `remove_metadata` selection is checked with the redaction option tests in Task 13.
 - [x] Implement deterministic path/category/ordinal aggregation, per-point timestamp coverage facts, and stable diagnostic merge. Do not include values even when a parse error occurs.
 - [x] Run `moon test audit --deny-warn`; it remains blocked only by the two unconstructed redaction result records until Task 13.
-- [ ] Commit: `feat: report GPX metadata exposure safely`.
+- [x] Commit: `feat: report GPX metadata exposure safely` (`9148c0a`).
 
 **Acceptance:** all spec categories are represented, counts are explicit, order is stable, and sensitive values are not retained in report records.
 
