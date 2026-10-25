@@ -24,6 +24,8 @@ pub let code_invalid_xml : String
 
 pub let code_point_limit_exceeded : String
 
+pub let code_undefined_center : String
+
 pub let code_unsupported_encoding : String
 
 pub let code_unsupported_namespace : String

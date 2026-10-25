@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Zcxssxx/trackshield/geo"
+
+import {
+  "Zcxssxx/trackshield/model",
+}
+
+// Values
+pub fn distance_m(@model.GeoPoint, @model.GeoPoint) -> Double
+
+pub fn max_distance_from_center(Array[@model.GeoPoint], @model.GeoPoint) -> Double
+
+pub fn spherical_mean(Array[@model.GeoPoint]) -> Result[@model.GeoPoint, @model.Diagnostic]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

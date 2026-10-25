@@ -28,6 +28,8 @@ pub let code_invalid_xml : String
 
 pub let code_point_limit_exceeded : String
 
+pub let code_undefined_center : String
+
 pub let code_unsupported_encoding : String
 
 pub let code_unsupported_namespace : String
@@ -40,6 +42,8 @@ pub fn default_audit_options() -> @model.AuditOptions
 
 pub fn default_input_limits() -> @model.InputLimits
 
+pub fn distance_m(@model.GeoPoint, @model.GeoPoint) -> Double
+
 pub fn inspect_gpx(@model.GpxInput, @model.InputLimits) -> @model.FileInspection
 
 pub fn make_audit_options(Double, Int32, Bool) -> Result[@model.AuditOptions, @model.Diagnostic]
@@ -49,6 +53,10 @@ pub fn make_geo_point(Double, Double) -> Result[@model.GeoPoint, @model.Diagnost
 pub fn make_input_limits(Int32, Int32, Int32, Int32, Int32, Int32) -> Result[@model.InputLimits, @model.Diagnostic]
 
 pub fn make_redaction_options(@model.GeoPoint, Double, Array[@model.MetadataCategory]) -> Result[@model.RedactionOptions, @model.Diagnostic]
+
+pub fn max_distance_from_center(Array[@model.GeoPoint], @model.GeoPoint) -> Double
+
+pub fn spherical_mean(Array[@model.GeoPoint]) -> Result[@model.GeoPoint, @model.Diagnostic]
 
 // Errors
 

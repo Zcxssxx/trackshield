@@ -179,24 +179,24 @@ pub fn default_audit_options() -> AuditOptions
 - [x] Implement the adapter over the confirmed dependency types. Unsupported namespaces receive stable diagnostics; parser failures map to a safe static diagnostic, and failed/partial input never returns `analyzed = true`.
 - [x] Ensure routes do not produce endpoint observations; a multi-track input keeps one source path while assigning stable 1-based track ordinals and file-local observation indices.
 - [ ] `moon test gpx --deny-warn` and `moon check --deny-warn` currently fail only on five planned audit/redaction result records not yet constructed; no unused GPX dependency warning remains. Ordinary tests pass: xmlguard 14/14, gpx 5/5, model 10/10, and api 10/10. The dependency compatibility tests still round-trip GPX 1.1 including extension payloads and parse GPX 1.0.
-- [ ] Commit: `feat: inspect GPX tracks and metadata`.
+- [x] Commit: `feat: inspect GPX tracks and metadata` (`8aefcb6`).
 
 **Acceptance:** file inspection obeys endpoint and metadata rules, supports the verified GPX versions, rejects byte/XML/point limits before semantic parsing, and never echoes metadata values.
 
 ### Task 6: Implement geodesic distance and spherical center calculations
 
-**Files:** `geo/moon.pkg`, `geo/distance.mbt`, `geo/center.mbt`, `geo/geo_test.mbt`.
+**Files:** `geo/moon.pkg`, `geo/distance.mbt`, `geo/center.mbt`, `geo/geo_test.mbt`, `model/diagnostic.mbt`, `api/moon.pkg`, `api/api.mbt`, and generated interfaces.
 
 **Interfaces:** `distance_m(a: GeoPoint, b: GeoPoint) -> Double`; `spherical_mean(points: Array[GeoPoint]) -> Result[GeoPoint, Diagnostic]`; `max_distance_from_center(points: Array[GeoPoint], center: GeoPoint) -> Double`.
 
-- [ ] Add fixed expected-distance tests for identical coordinates, a known short equatorial displacement, antimeridian crossing, high latitudes, poles, and exact radius-boundary cases with an explicit floating-point tolerance.
-- [ ] Add center tests for identical points, a cluster crossing the antimeridian, a high-latitude cluster, and antipodal/near-zero resultant vectors.
-- [ ] Implement haversine distance with normalized longitude delta and spherical-mean center. Return a diagnostic for a center that cannot be stably defined instead of selecting an arbitrary point.
-- [ ] Verify symmetry, non-negative output, identity distance, and threshold comparison at `r - tolerance`, `r`, and `r + tolerance`.
-- [ ] Run `moon test geo --deny-warn`.
+- [x] Add fixed expected-distance tests for identical coordinates, a known short equatorial displacement, antimeridian crossing, high latitudes, poles, and radius-boundary cases with a 1 cm absolute tolerance.
+- [x] Add center tests for identical points, a cluster crossing the antimeridian, a high-latitude cluster, and antipodal/near-zero resultant vectors.
+- [x] Implement haversine distance with normalized longitude delta and spherical-mean center. Return `geo.undefined_center` when the resultant is unstable rather than selecting an arbitrary point.
+- [x] Verify symmetry, non-negative output, identity distance, and inclusive threshold comparisons at `r - 1 cm`, `r`, and `r + 1 cm`.
+- [ ] `moon test geo --deny-warn` is still blocked by five later audit/redaction result records (`EndpointEvidence`, `RepeatedLocation`, `AuditReport`, `RedactionPreview`, `RedactedFile`) that remain intentionally unconstructed until their producer tasks. Ordinary geometry tests pass 11/11; no geometry warning is present.
 - [ ] Commit: `feat: add robust geographic calculations`.
 
-**Acceptance:** numerical tests pass on the selected backend and all comparisons use one documented metre/tolerance policy.
+**Acceptance:** numerical tests pass on the native target; distances use metres and the mean Earth radius, while runtime radius comparisons are inclusive and exact (`distance_m <= radius_m`). The 1 cm tolerance is only for numerical reference assertions.
 
 ### Task 7: Aggregate repeated endpoints across distinct files
 

@@ -54,6 +54,9 @@ pub let code_unsupported_encoding : String = "xml.unsupported_encoding"
 pub let code_point_limit_exceeded : String = "input.point_limit_exceeded"
 
 ///|
+pub let code_undefined_center : String = "geo.undefined_center"
+
+///|
 pub let code_doctype_forbidden : String = "xml.doctype_forbidden"
 
 ///|

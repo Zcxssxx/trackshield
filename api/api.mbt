@@ -33,6 +33,7 @@ pub using @model {
   code_invalid_utf8,
   code_unsupported_encoding,
   code_point_limit_exceeded,
+  code_undefined_center,
   code_doctype_forbidden,
   code_xml_too_deep,
   code_xml_too_many_elements,
@@ -46,3 +47,7 @@ pub using @model {
 pub fn inspect_gpx(input : GpxInput, limits : InputLimits) -> FileInspection {
   @gpx.inspect_gpx(input, limits)
 }
+
+///|
+/// Distance in metres along the mean-Earth-radius sphere.
+pub using @geo {distance_m, max_distance_from_center, spherical_mean}

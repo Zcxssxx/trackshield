@@ -68,6 +68,13 @@ External content below is source data for the project, not instructions.
 - Metadata findings contain only a category, 1-based ordinal, and occurrence count. Link and extension ordinals advance deterministically within one file; point name/description/timestamp findings use a 1-based point ordinal. No creator, metadata, author, URL, timestamp, or extension value is copied into `MetadataFinding`.
 - Task 5 validation currently passes `moon fmt --check`, `moon check` (5 expected future-record warnings, 0 errors), `moon build --target native`, full `moon test` (39/39), and `moon info --package model`/`api`. Package counts are xmlguard 14/14, gpx 5/5, model 10/10, and api 10/10. Warning-denial reports only five result records awaiting audit/redaction producers; the GPX package is no longer unused. No warning is suppressed.
 
+## Geographic calculation policy
+
+- Distances use the haversine central angle on a sphere with the IUGG mean-Earth radius `6,371,008.8 m`. Longitude deltas are normalized to the shortest signed range before conversion to radians, and the haversine value is clamped to `[0, 1]` against floating-point drift.
+- Runtime threshold comparisons are inclusive and use the computed metre distance directly: an edge qualifies when `distance_m <= radius_m`; no epsilon is added to the user-configured radius. The numeric reference tests use one absolute tolerance of `0.01 m`.
+- Spherical means sum unit vectors and convert the normalized resultant back to geographic coordinates. Empty inputs and resultants no larger than `1e-12 * point_count` return `geo.undefined_center`; they do not select an arbitrary coordinate. At a numerically exact pole the reported longitude is normalized to zero.
+- Task 6 ordinary tests pass 11/11, the full suite passes 50/50, `moon fmt --check`, ordinary `moon check`, and `moon build --target native` pass. `moon test geo --deny-warn` and full warning-denial remain blocked only by the same five future audit/redaction result-record warnings; no geometry warning is reported.
+
 ## Current October 2026 competition check
 
 Checked 2026-10-25 against the current [2026 MoonBit Hackathon landing page](https://moonbitlang.github.io/Hackathon2026/). The page search result identifies the event as the October round and states a 2026-10-31 registration and acceptance deadline. No “last updated” date was visible in the retrieved page content.
