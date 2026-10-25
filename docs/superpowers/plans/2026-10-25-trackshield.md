@@ -246,21 +246,21 @@ pub fn default_audit_options() -> AuditOptions
 
 ### Task 10: Implement deterministic audit CLI and file traversal
 
-**Files:** `cmd/main/moon.pkg`, `cmd/main/main.mbt`, `cmd/main/args.mbt`, `cmd/main/input_files.mbt`, `cmd/main/audit_command.mbt`, `cmd/main/cli_test.mbt`, `README.md`.
+**Files:** `cmd/main/moon.pkg`, `cmd/main/main.mbt`, `cmd/main/args.mbt`, `cmd/main/input_files.mbt`, `cmd/main/audit_command.mbt`, `cmd/main/cli_wbtest.mbt`, `README.md`, `examples/repeated-endpoints/*.gpx`.
 
 **Interfaces:** Native executable command `trackshield audit <path>... [--radius-m <number>] [--min-files <positive-int>] [--format text|json] [--show-coordinates] [--max-file-bytes <positive-int>] [--max-points <positive-int>] [--max-files <positive-int>] [--max-total-bytes <positive-int>]`; filesystem adapter loads and inspects one file at a time and passes `Array[FileInspection]` to the library.
 
-- [ ] Discover and record exact MoonBit argument-parsing and filesystem APIs with `moon ide doc`; use only documented current signatures. If the async filesystem APIs cannot safely identify symlink/reparse entries, use a supported platform API or reject directory mode for that platform with a clear diagnostic until safely supported.
-- [ ] Add CLI tests for help, missing paths, invalid option values, invalid paths, unsupported extensions, unreadable files, empty directories, deterministic nested directory order, symlink/reparse exclusion, and partial-success exit behavior.
-- [ ] Test collection boundaries at `max_files` and `max_total_bytes`, then one file and one byte over; excess files receive stable diagnostics and are not parsed.
-- [ ] Test each resource-limit CLI option at its default, valid override, malformed value, zero, and negative value; confirm the configured limit reaches the library and directory loader.
-- [ ] Implement exit code 0 when all inputs are analyzed regardless of privacy findings, exit code 1 for one or more unanalyzable inputs with a report, and exit code 2 for usage/fatal errors before a report.
-- [ ] Test reports written to stdout only; errors and diagnostic summaries go to stderr; no raw metadata values or coordinates are logged.
-- [ ] Add runnable audit invocations to README and verify each invocation against the synthetic examples.
-- [ ] Run `moon run cmd/main -- --help`, the documented text and JSON commands, `moon test cmd/main --deny-warn`, and `moon build --target native --deny-warn`.
-- [ ] Commit: `feat: add deterministic audit CLI`.
+- [x] Record argument and filesystem signatures. `moon ide doc` cannot load core metadata on this installation, so signatures were verified against the installed core source and pinned async 0.22.5 generated interface/source. `@env.args()` includes the executable prefix; the CLI adapter strips it before passing tokens to `Command.parse(argv=...)`. `@fs.kind(..., follow_symlink=false)` classifies static symlinks/reparse points as `SymLink`; an authored Windows junction test confirms traversal skips it.
+- [x] Add CLI tests for help, missing paths, invalid option values, invalid paths, unsupported extensions, empty directories, deterministic nested directory order, symlink/reparse exclusion (including a file beneath a junction), canonical path alias deduplication, and partial-success exit behavior. A missing input exercises `input.path_unreadable`; ACL-denied regular-file behavior is not directly tested on this Windows host.
+- [x] Test collection boundaries at `max_files` and `max_total_bytes`, then one file and one byte over; excess inputs receive stable diagnostics and are not parsed. `max_file_bytes` exact/+1 boundaries are also covered.
+- [x] Test defaults, overrides, malformed values, zero, and negative values for resource limits; tests verify configured limits reach the loader.
+- [x] Implement CLI status policy: 0 for an analyzed collection (warnings allowed), 1 for one or more errors with a report, and 2 for command-line errors before a report. The built native executable directly returned 2 for an invalid command and 1 for a mixed valid/missing collection.
+- [x] Test reports on stdout, diagnostic summaries on stderr, and no raw fixture text in diagnostics. A direct executable run captured/parsed JSON stdout separately from stderr and reported exit 1 for a mixed collection.
+- [x] Add runnable text, JSON, and override audit invocations to README and execute all three successfully against the synthetic example collection.
+- [x] Run help, targeted CLI tests, full tests, native build, `moon info --package cmd/main`, and `moon fmt --check`. `moon test cmd/main --deny-warn` and `moon build --target native --deny-warn` were also run; both remain nonzero only because `RedactionPreview` and `RedactedFile` are intentionally unconstructed until Task 13. The Windows native build also prints an upstream async C `EINVAL` macro-redefinition warning. Ordinary `moon check` and native build succeed.
+- [x] Committed as `407f834 feat: add deterministic audit CLI`; the commit author and committer are both `Zcxssxx <Zcxssxx@users.noreply.github.com>`.
 
-**Acceptance:** CLI works against files and directories on the supported native OS, does not follow links by default, and returns the specified exit codes.
+**Acceptance:** CLI works against files and directories on the current Windows native host, its junction tests prove links are not traversed even through an intermediate component, aliases are deduplicated, and direct-executable exit statuses match the specified policy. Permission-denied ACL behavior and hosted CI remain unverified.
 
 ### Task 11: Plan redaction for explicit user-supplied circles
 
