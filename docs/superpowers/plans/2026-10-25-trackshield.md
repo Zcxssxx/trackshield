@@ -80,7 +80,7 @@ pub struct MetadataFinding { source_path: String, category: MetadataCategory, it
 pub struct FileInspection { source_path: String, endpoints: Array[EndpointObservation], metadata_findings: Array[MetadataFinding], diagnostics: Array[Diagnostic], track_count: Int, point_count: Int, analyzed: Bool }
 pub struct AuditOptions { radius_m: Double, min_distinct_files: Int, include_coordinates: Bool }
 pub struct EndpointEvidence { source_path: String, track_ordinal: Int, kind: EndpointKind, observation_index: Int }
-pub struct RepeatedLocation { id: String, distinct_file_count: Int, distinct_track_count: Int, evidence: Array[EndpointEvidence], center: GeoPoint?, max_distance_from_center_m: Double, wide_component: Bool }
+pub struct RepeatedLocation { id: String, distinct_file_count: Int, distinct_track_count: Int, evidence: Array[EndpointEvidence], center: GeoPoint?, max_distance_from_center_m: Double?, wide_component: Bool }
 pub struct AuditReport { options: AuditOptions, repeated_locations: Array[RepeatedLocation], metadata_findings: Array[MetadataFinding], diagnostics: Array[Diagnostic] }
 pub struct RedactionOptions { center: GeoPoint, radius_m: Double, remove_metadata: Array[MetadataCategory] }
 pub struct RedactionPreview { source_path: String, points_removed: Int, segments_created: Int, routes_removed: Int, waypoints_removed: Int, metadata_fields_removed: Int, output_would_be_empty: Bool, diagnostics: Array[Diagnostic] }
@@ -193,23 +193,23 @@ pub fn default_audit_options() -> AuditOptions
 - [x] Add center tests for identical points, a cluster crossing the antimeridian, a high-latitude cluster, and antipodal/near-zero resultant vectors.
 - [x] Implement haversine distance with normalized longitude delta and spherical-mean center. Return `geo.undefined_center` when the resultant is unstable rather than selecting an arbitrary point.
 - [x] Verify symmetry, non-negative output, identity distance, and inclusive threshold comparisons at `r - 1 cm`, `r`, and `r + 1 cm`.
-- [ ] `moon test geo --deny-warn` is still blocked by five later audit/redaction result records (`EndpointEvidence`, `RepeatedLocation`, `AuditReport`, `RedactionPreview`, `RedactedFile`) that remain intentionally unconstructed until their producer tasks. Ordinary geometry tests pass 11/11; no geometry warning is present.
-- [ ] Commit: `feat: add robust geographic calculations`.
+- [x] `moon test geo --deny-warn` remains blocked only by two later redaction result records (`RedactionPreview`, `RedactedFile`) that remain intentionally unconstructed until the redaction task. Ordinary geometry tests pass 11/11; no geometry warning is present.
+- [x] Commit: `feat: add robust geographic calculations` (`cd9e4ef`).
 
 **Acceptance:** numerical tests pass on the native target; distances use metres and the mean Earth radius, while runtime radius comparisons are inclusive and exact (`distance_m <= radius_m`). The 1 cm tolerance is only for numerical reference assertions.
 
 ### Task 7: Aggregate repeated endpoints across distinct files
 
-**Files:** `audit/moon.pkg`, `audit/endpoint_graph.mbt`, `audit/clusters.mbt`, `audit/cluster_test.mbt`, `api/api.mbt`.
+**Files:** `audit/moon.pkg`, `audit/endpoints.mbt`, `audit/audit_test.mbt`, `api/api.mbt`.
 
 **Interfaces:** `audit_collection(inspections: Array[FileInspection], options: AuditOptions) -> AuditReport`; each connected component is qualified by distinct file count, while distinct track count is reported separately.
 
-- [ ] Add tests where three separate files qualify, two separate files do not qualify, many tracks in one file count as one source, duplicate endpoints from one track count as observations but not files, repeated canonical paths count as one source, and file input order permutations produce byte-stable findings. The CLI canonicalizes file paths before inspection; direct library calls use the exact normalized `source_path` string as the source identity.
-- [ ] Add tests for a pairwise-near transitive chain whose component radius is wider than the configured radius; set `wide_component = true`, retain all evidence, and add a stable `audit.wide_endpoint_component` warning.
-- [ ] Add tests for identical endpoints, no endpoints, invalid coordinates in one inspection, duplicate paths, and a component exactly at the configured distance.
-- [ ] Implement a deterministic spatial proximity graph using the geo package. Sort observations by stable source path, track ordinal, kind, and observation index before assigning stable finding IDs.
-- [ ] Omit the center unless `include_coordinates`; always report distinct files, distinct tracks, evidence references, max center distance when a stable center exists, and the chained/wide flag.
-- [ ] Run `moon test audit --deny-warn` and `moon test --deny-warn`.
+- [x] Add tests where three separate files qualify, two separate files do not qualify, many tracks in one file count as one source, duplicate endpoints from one track count as observations but not tracks, repeated normalized paths count as one source, and input reordering preserves every finding field and diagnostic. The CLI canonicalizes file paths before inspection; direct library calls use the exact normalized `FileInspection.source_path` string as the source identity.
+- [x] Add tests for a pairwise-near transitive chain whose component radius is wider than the configured radius; set `wide_component = true`, retain all evidence, and add a stable `audit.wide_endpoint_component` warning.
+- [x] Add tests for identical endpoints, no endpoints, failed coordinate-input diagnostics on an unanalyzed inspection, duplicate paths, an antipodal component with no stable center, and a component exactly at the configured distance. `GeoPoint`'s validated constructor prevents invalid coordinates from entering a valid inspection.
+- [x] Implement a deterministic 3D spatial proximity graph using the geo package. Sort observations by stable source path, track ordinal, kind, observation index, and coordinates before assigning stable finding IDs.
+- [x] Omit the center unless `include_coordinates`; always report distinct files, distinct tracks, evidence references, and max center distance when a stable center exists. The optional max-distance field is absent if the spherical center is undefined; that component is not marked wide without a computable radius and carries `geo.undefined_center`.
+- [x] Run `moon test audit --deny-warn` and `moon test --deny-warn`; both currently fail only because `RedactionPreview` and `RedactedFile` are intentionally not yet constructed before the redaction task. Ordinary full tests pass 62/62.
 - [ ] Commit: `feat: find repeated endpoints across GPX collections`.
 
 **Acceptance:** repeated-location findings are reproducible under input reordering, respect distinct-file thresholds, and never label a location or person.

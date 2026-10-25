@@ -28,6 +28,7 @@ pub using @model {
   code_invalid_longitude,
   code_invalid_radius,
   code_invalid_support,
+  code_wide_endpoint_component,
   code_invalid_limits,
   code_file_too_large,
   code_invalid_utf8,
@@ -46,6 +47,15 @@ pub using @model {
 /// Inspect one in-memory GPX document after bounded XML preflight.
 pub fn inspect_gpx(input : GpxInput, limits : InputLimits) -> FileInspection {
   @gpx.inspect_gpx(input, limits)
+}
+
+///|
+/// Audit a collection of per-file inspections for repeated endpoint clues.
+pub fn audit_collection(
+  inspections : Array[FileInspection],
+  options : AuditOptions,
+) -> AuditReport {
+  @audit.audit_collection(inspections, options)
 }
 
 ///|

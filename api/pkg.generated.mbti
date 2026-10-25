@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn audit_collection(Array[@model.FileInspection], @model.AuditOptions) -> @model.AuditReport
+
 pub let code_doctype_forbidden : String
 
 pub let code_file_too_large : String
@@ -33,6 +35,8 @@ pub let code_undefined_center : String
 pub let code_unsupported_encoding : String
 
 pub let code_unsupported_namespace : String
+
+pub let code_wide_endpoint_component : String
 
 pub let code_xml_too_deep : String
 

@@ -32,6 +32,14 @@ test "public API re-exports validated constructors and defaults" {
 }
 
 ///|
+test "public API exposes an empty collection audit" {
+  let report = @api.audit_collection([], @api.default_audit_options())
+  assert_eq(report.repeated_locations.length(), 0)
+  assert_eq(report.metadata_findings.length(), 0)
+  assert_eq(report.options.min_distinct_files, 3)
+}
+
+///|
 fn test_bytes(text : String) -> Bytes {
   let bytes : Array[Byte] = []
   for ch in text {

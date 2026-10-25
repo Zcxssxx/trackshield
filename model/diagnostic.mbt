@@ -39,6 +39,9 @@ pub let code_invalid_radius : String = "geo.invalid_radius"
 pub let code_invalid_support : String = "audit.invalid_support"
 
 ///|
+pub let code_wide_endpoint_component : String = "audit.wide_endpoint_component"
+
+///|
 pub let code_invalid_limits : String = "input.invalid_limits"
 
 ///|

@@ -234,6 +234,17 @@ pub struct EndpointEvidence {
 }
 
 ///|
+/// Build a coordinate-free reference to one endpoint observation.
+pub fn make_endpoint_evidence(
+  source_path : String,
+  track_ordinal : Int32,
+  kind : EndpointKind,
+  observation_index : Int32,
+) -> EndpointEvidence {
+  { source_path, track_ordinal, kind, observation_index, }
+}
+
+///|
 /// A supported endpoint cluster. `center` is present only when requested.
 pub struct RepeatedLocation {
   id : String
@@ -241,8 +252,30 @@ pub struct RepeatedLocation {
   distinct_track_count : Int32
   evidence : Array[EndpointEvidence]
   center : GeoPoint?
-  max_distance_from_center_m : Double
+  max_distance_from_center_m : Double?
   wide_component : Bool
+}
+
+///|
+/// Build a repeated-endpoint component with copied evidence references.
+pub fn make_repeated_location(
+  id : String,
+  distinct_file_count : Int32,
+  distinct_track_count : Int32,
+  evidence : Array[EndpointEvidence],
+  center : GeoPoint?,
+  max_distance_from_center_m : Double?,
+  wide_component : Bool,
+) -> RepeatedLocation {
+  {
+    id,
+    distinct_file_count,
+    distinct_track_count,
+    evidence: evidence.copy(),
+    center,
+    max_distance_from_center_m,
+    wide_component,
+  }
 }
 
 ///|
@@ -252,4 +285,20 @@ pub struct AuditReport {
   repeated_locations : Array[RepeatedLocation]
   metadata_findings : Array[MetadataFinding]
   diagnostics : Array[Diagnostic]
+}
+
+///|
+/// Build a collection audit snapshot with copied result arrays.
+pub fn make_audit_report(
+  options : AuditOptions,
+  repeated_locations : Array[RepeatedLocation],
+  metadata_findings : Array[MetadataFinding],
+  diagnostics : Array[Diagnostic],
+) -> AuditReport {
+  {
+    options,
+    repeated_locations: repeated_locations.copy(),
+    metadata_findings: metadata_findings.copy(),
+    diagnostics: diagnostics.copy(),
+  }
 }

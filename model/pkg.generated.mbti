@@ -30,6 +30,8 @@ pub let code_unsupported_encoding : String
 
 pub let code_unsupported_namespace : String
 
+pub let code_wide_endpoint_component : String
+
 pub let code_xml_too_deep : String
 
 pub let code_xml_too_many_elements : String
@@ -39,6 +41,10 @@ pub fn default_audit_options() -> AuditOptions
 pub fn default_input_limits() -> InputLimits
 
 pub fn make_audit_options(Double, Int32, Bool) -> Result[AuditOptions, Diagnostic]
+
+pub fn make_audit_report(AuditOptions, Array[RepeatedLocation], Array[MetadataFinding], Array[Diagnostic]) -> AuditReport
+
+pub fn make_endpoint_evidence(String, Int32, EndpointKind, Int32) -> EndpointEvidence
 
 pub fn make_endpoint_observation(String, Int32, EndpointKind, Int32, GeoPoint) -> EndpointObservation
 
@@ -51,6 +57,8 @@ pub fn make_input_limits(Int32, Int32, Int32, Int32, Int32, Int32) -> Result[Inp
 pub fn make_metadata_finding(String, MetadataCategory, Int32, Int32) -> MetadataFinding
 
 pub fn make_redaction_options(GeoPoint, Double, Array[MetadataCategory]) -> Result[RedactionOptions, Diagnostic]
+
+pub fn make_repeated_location(String, Int32, Int32, Array[EndpointEvidence], GeoPoint?, Double?, Bool) -> RepeatedLocation
 
 // Errors
 
@@ -181,7 +189,7 @@ pub struct RepeatedLocation {
   distinct_track_count : Int32
   evidence : Array[EndpointEvidence]
   center : GeoPoint?
-  max_distance_from_center_m : Double
+  max_distance_from_center_m : Double?
   wide_component : Bool
 }
 
