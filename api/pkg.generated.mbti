@@ -26,6 +26,8 @@ pub let code_invalid_utf8 : String
 
 pub let code_invalid_xml : String
 
+pub let code_point_limit_exceeded : String
+
 pub let code_unsupported_encoding : String
 
 pub let code_unsupported_namespace : String
@@ -37,6 +39,8 @@ pub let code_xml_too_many_elements : String
 pub fn default_audit_options() -> @model.AuditOptions
 
 pub fn default_input_limits() -> @model.InputLimits
+
+pub fn inspect_gpx(@model.GpxInput, @model.InputLimits) -> @model.FileInspection
 
 pub fn make_audit_options(Double, Int32, Bool) -> Result[@model.AuditOptions, @model.Diagnostic]
 

@@ -169,19 +169,19 @@ pub fn default_audit_options() -> AuditOptions
 
 ### Task 5: Build the GPX adapter and track/metadata extraction
 
-**Files:** `gpx/adapter.mbt`, `gpx/extract_tracks.mbt`, `gpx/extract_metadata.mbt`, `gpx/adapter_test.mbt`, `api/api.mbt`, `testdata/gpx-10/`, `testdata/gpx-11/`.
+**Files:** `gpx/adapter.mbt`, `gpx/extract_tracks.mbt`, `gpx/extract_metadata.mbt`, `gpx/dependency_probe_test.mbt`, `internal/xmlguard/`, `model/audit.mbt`, `model/diagnostic.mbt`, `api/api.mbt`, `api/api_test.mbt`, and the generated package interfaces.
 
 **Interfaces:** `inspect_gpx(input, limits) -> FileInspection`; internal adapter functions map the dependency model to TrackShield records. The endpoint rule is first point in the first non-empty track segment and last point in the last non-empty track segment. Each file contributes one source identity.
 
-- [ ] Write parser tests for GPX 1.0 and 1.1, multiple tracks, multiple segments, leading/trailing empty segments, an entirely empty track, routes without tracks, waypoint-only input, mixed namespace forms, and a malformed file beside a valid file. Every public parse path must first call `internal/xmlguard.validate_input`; assert that a rejected oversize/DTD document never reaches semantic parsing.
-- [ ] Write metadata tests for creator, metadata name/description, author name/email, links, track/route/waypoint labels and descriptions, timestamp presence and coverage, and extension presence. Assert findings include category and ordinal only, not values.
-- [ ] Test exact point-count boundary using authored files with `max_points_per_file` points and one point above; the over-limit file returns `input.point_limit_exceeded` without panicking.
-- [ ] Implement the adapter over the confirmed dependency types. Unsupported fields or namespaces receive stable diagnostics; do not convert a partial parse into `analyzed = true` without a diagnostic.
-- [ ] Ensure routes do not produce endpoint observations; one file containing several tracks still has one stable source identity.
-- [ ] Run `moon test gpx --deny-warn`; round-trip the supported fixture set and compare fields including extensions that the selected dependency claims to preserve.
+- [x] Test GPX 1.0 and 1.1, multiple tracks and segments, leading/trailing empty segments, a wholly empty track, route/waypoint-only data, mixed namespace rejection, and malformed XML. Every parse enters through `internal/xmlguard.validate_input`; API tests verify DTD/size rejection and safe malformed-input diagnostics. A malformed file beside a valid file belongs to the collection-level Task 7.
+- [x] Test creator, metadata name/description, author name/email, links, track/route/waypoint names and descriptions, point timestamp presence, and extension presence. Findings retain only category, ordinal and count, never source field values.
+- [x] Test the exact point-count boundary and one point above it. XML preflight counts GPX point elements and rejects over-limit input before semantic model allocation; adapter counting remains as a defensive consistency check.
+- [x] Implement the adapter over the confirmed dependency types. Unsupported namespaces receive stable diagnostics; parser failures map to a safe static diagnostic, and failed/partial input never returns `analyzed = true`.
+- [x] Ensure routes do not produce endpoint observations; a multi-track input keeps one source path while assigning stable 1-based track ordinals and file-local observation indices.
+- [ ] `moon test gpx --deny-warn` and `moon check --deny-warn` currently fail only on five planned audit/redaction result records not yet constructed; no unused GPX dependency warning remains. Ordinary tests pass: xmlguard 14/14, gpx 5/5, model 10/10, and api 10/10. The dependency compatibility tests still round-trip GPX 1.1 including extension payloads and parse GPX 1.0.
 - [ ] Commit: `feat: inspect GPX tracks and metadata`.
 
-**Acceptance:** file inspection obeys endpoint and metadata rules, works for the verified versions, and never echoes metadata values.
+**Acceptance:** file inspection obeys endpoint and metadata rules, supports the verified GPX versions, rejects byte/XML/point limits before semantic parsing, and never echoes metadata values.
 
 ### Task 6: Implement geodesic distance and spherical center calculations
 

@@ -51,6 +51,9 @@ pub let code_invalid_utf8 : String = "xml.invalid_utf8"
 pub let code_unsupported_encoding : String = "xml.unsupported_encoding"
 
 ///|
+pub let code_point_limit_exceeded : String = "input.point_limit_exceeded"
+
+///|
 pub let code_doctype_forbidden : String = "xml.doctype_forbidden"
 
 ///|

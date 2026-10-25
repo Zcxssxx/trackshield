@@ -32,10 +32,17 @@ pub using @model {
   code_file_too_large,
   code_invalid_utf8,
   code_unsupported_encoding,
+  code_point_limit_exceeded,
   code_doctype_forbidden,
   code_xml_too_deep,
   code_xml_too_many_elements,
   code_invalid_xml,
   code_unsupported_namespace,
   code_gpx_parse_failed,
+}
+
+///|
+/// Inspect one in-memory GPX document after bounded XML preflight.
+pub fn inspect_gpx(input : GpxInput, limits : InputLimits) -> FileInspection {
+  @gpx.inspect_gpx(input, limits)
 }

@@ -94,6 +94,7 @@ pub fn MetadataCategory::to_string(self : MetadataCategory) -> String {
 
 ///|
 /// One sensitive endpoint coordinate extracted from a source file.
+/// Track ordinals start at 1; observation indexes start at 0 within the file.
 pub struct EndpointObservation {
   source_path : String
   track_ordinal : Int32
@@ -103,7 +104,20 @@ pub struct EndpointObservation {
 }
 
 ///|
-/// A count of one metadata category in one source file.
+/// Build an endpoint observation for another package in the TrackShield module.
+pub fn make_endpoint_observation(
+  source_path : String,
+  track_ordinal : Int32,
+  kind : EndpointKind,
+  observation_index : Int32,
+  point : GeoPoint,
+) -> EndpointObservation {
+  { source_path, track_ordinal, kind, observation_index, point, }
+}
+
+///|
+/// A metadata category occurrence in one source file, without the source value.
+/// Item ordinals start at 1; occurrence_count counts represented occurrences.
 pub struct MetadataFinding {
   source_path : String
   category : MetadataCategory
@@ -112,7 +126,19 @@ pub struct MetadataFinding {
 }
 
 ///|
-/// Parsed per-file facts. Endpoint coordinates remain in this detailed local model.
+/// Build a metadata finding without retaining the metadata value itself.
+pub fn make_metadata_finding(
+  source_path : String,
+  category : MetadataCategory,
+  item_ordinal : Int32,
+  occurrence_count : Int32,
+) -> MetadataFinding {
+  { source_path, category, item_ordinal, occurrence_count, }
+}
+
+///|
+/// Parsed per-file facts. Point counts include waypoints, route points, and track
+/// points. Endpoint coordinates remain in this detailed local model.
 pub struct FileInspection {
   source_path : String
   endpoints : Array[EndpointObservation]
@@ -121,6 +147,28 @@ pub struct FileInspection {
   track_count : Int32
   point_count : Int32
   analyzed : Bool
+}
+
+///|
+/// Build an immutable snapshot of one file's inspection results.
+pub fn make_file_inspection(
+  source_path : String,
+  endpoints : Array[EndpointObservation],
+  metadata_findings : Array[MetadataFinding],
+  diagnostics : Array[Diagnostic],
+  track_count : Int32,
+  point_count : Int32,
+  analyzed : Bool,
+) -> FileInspection {
+  {
+    source_path,
+    endpoints: endpoints.copy(),
+    metadata_findings: metadata_findings.copy(),
+    diagnostics: diagnostics.copy(),
+    track_count,
+    point_count,
+    analyzed,
+  }
 }
 
 ///|

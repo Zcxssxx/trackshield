@@ -35,6 +35,6 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 
 ## Current gate
 
-- Implementation plan execution is active in the current session. Task 1 is complete with unresolved official-source requirements explicitly recorded. Task 2 has a pinned dependency and passing parser compatibility probes; its final warning-denial check waits for the production adapter. Task 3 is committed (`37bef2f`), and Task 4's internal XML preflight passes 13/13 tests. Task 5 must wire preflight before semantic parsing; warning-denial still reports eight future result-record constructors and the not-yet-used production GPX dependency.
+- Implementation plan execution is active in the current session. Task 1 is complete with unresolved official-source requirements explicitly recorded. Task 2's pinned GPX dependency has passing compatibility probes and is now consumed by the production adapter. Task 3 is committed (`37bef2f`); Task 4's preflight and Task 5's public `inspect_gpx` path pass their package tests. Warning-denial now reports five audit/redaction result records awaiting real producers. Task 5 changes are locally ready for verification and commit.
 - Continue local-only work. Do not configure a GitHub remote, browse authenticated GitHub state, create a repository, push, or claim hosted CI status.
 - The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`.

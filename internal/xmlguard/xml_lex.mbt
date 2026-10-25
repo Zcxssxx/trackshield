@@ -27,8 +27,9 @@ pub fn preflight_xml(
   bytes : Bytes,
   max_depth : Int32,
   max_elements : Int32,
+  max_points~ : Int32 = 1_000_000,
 ) -> Result[Unit, @model.Diagnostic] {
-  if max_depth <= 0 || max_elements <= 0 {
+  if max_depth <= 0 || max_elements <= 0 || max_points <= 0 {
     return Err(
       make_error(
         @model.code_invalid_limits, "XML preflight limits must be positive",
@@ -56,6 +57,7 @@ pub fn preflight_xml(
   let mut root_seen = false
   let mut root_closed = false
   let mut element_count = 0
+  let mut point_count = 0
   let mut cursor = content_start
 
   while cursor < length {
@@ -149,6 +151,22 @@ pub fn preflight_xml(
                 tag.default_namespace,
               ) {
               return Err(unsupported_namespace())
+            }
+          }
+
+          if !parent_in_extension &&
+            (
+              span_equals_ascii(bytes, tag.name, "wpt") ||
+              span_equals_ascii(bytes, tag.name, "rtept") ||
+              span_equals_ascii(bytes, tag.name, "trkpt")
+            ) {
+            point_count += 1
+            if point_count > max_points {
+              return Err(
+                make_error(
+                  @model.code_point_limit_exceeded, "GPX point count exceeds the configured limit",
+                ),
+              )
             }
           }
 

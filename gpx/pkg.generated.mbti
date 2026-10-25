@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Zcxssxx/trackshield/gpx"
+
+import {
+  "Zcxssxx/trackshield/model",
+}
+
+// Values
+pub fn inspect_gpx(@model.GpxInput, @model.InputLimits) -> @model.FileInspection
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

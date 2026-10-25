@@ -15,7 +15,13 @@ pub fn validate_input(
       ),
     ]
   }
-  match preflight_xml(bytes, limits.max_xml_depth, limits.max_xml_elements) {
+  match
+    preflight_xml(
+      bytes,
+      limits.max_xml_depth,
+      limits.max_xml_elements,
+      max_points=limits.max_points_per_file,
+    ) {
     Ok(_) => []
     Err(diagnostic) =>
       [

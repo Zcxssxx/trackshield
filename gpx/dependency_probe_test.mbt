@@ -73,3 +73,22 @@ test "malformed XML fails without a model" {
     Err(_) => ()
   }
 }
+
+///|
+test "ASCII GPX survives the validated byte-to-string bridge" {
+  let source = "<gpx version=\"1.1\" creator=\"x\" xmlns=\"http://www.topografix.com/GPX/1/1\"><trk><trkseg><trkpt lat=\"1\" lon=\"2\"/><trkpt lat=\"3\" lon=\"4\"/></trkseg></trk></gpx>"
+  let bytes : Array[Byte] = []
+  for ch in source {
+    bytes.push(ch.to_int().to_byte())
+  }
+  let decoded = try @utf8.decode(Bytes::from_array(bytes)) catch {
+    Malformed(_) => ""
+  } noraise {
+    value => value
+  }
+  assert_eq(decoded, source)
+  match @moongpx.parse_gpx_any(decoded) {
+    Ok(gpx) => assert_eq(gpx.tracks.length(), 1)
+    Err(diagnostics) => fail(@moongpx.format_diagnostics(diagnostics))
+  }
+}

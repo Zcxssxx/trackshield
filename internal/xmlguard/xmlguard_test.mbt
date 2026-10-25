@@ -16,6 +16,17 @@ test "file size is checked before XML content" {
 }
 
 ///|
+test "GPX point limits are checked lexically before model parsing" {
+  let source = "<gpx version=\"1.1\" creator=\"x\" xmlns=\"http://www.topografix.com/GPX/1/1\"><wpt lat=\"1\" lon=\"2\"/><trk><trkseg><trkpt lat=\"3\" lon=\"4\"/></trkseg></trk></gpx>"
+  let bytes = ascii_bytes(source)
+  assert_true(@xmlguard.preflight_xml(bytes, 32, 100, max_points=2) is Ok(_))
+  assert_eq(
+    diagnostic_code(@xmlguard.preflight_xml(bytes, 32, 100, max_points=1)),
+    Some(@model.code_point_limit_exceeded),
+  )
+}
+
+///|
 test "real DOCTYPE declarations are rejected regardless of keyword case" {
   for
     declaration in [

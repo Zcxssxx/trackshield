@@ -22,6 +22,8 @@ pub let code_invalid_utf8 : String
 
 pub let code_invalid_xml : String
 
+pub let code_point_limit_exceeded : String
+
 pub let code_unsupported_encoding : String
 
 pub let code_unsupported_namespace : String
@@ -36,9 +38,15 @@ pub fn default_input_limits() -> InputLimits
 
 pub fn make_audit_options(Double, Int32, Bool) -> Result[AuditOptions, Diagnostic]
 
+pub fn make_endpoint_observation(String, Int32, EndpointKind, Int32, GeoPoint) -> EndpointObservation
+
+pub fn make_file_inspection(String, Array[EndpointObservation], Array[MetadataFinding], Array[Diagnostic], Int32, Int32, Bool) -> FileInspection
+
 pub fn make_geo_point(Double, Double) -> Result[GeoPoint, Diagnostic]
 
 pub fn make_input_limits(Int32, Int32, Int32, Int32, Int32, Int32) -> Result[InputLimits, Diagnostic]
+
+pub fn make_metadata_finding(String, MetadataCategory, Int32, Int32) -> MetadataFinding
 
 pub fn make_redaction_options(GeoPoint, Double, Array[MetadataCategory]) -> Result[RedactionOptions, Diagnostic]
 

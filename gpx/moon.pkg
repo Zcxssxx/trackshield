@@ -1,3 +1,6 @@
 import {
   "2973181701/moongpx",
+  "moonbitlang/core/encoding/utf8",
+  "Zcxssxx/trackshield/internal/xmlguard",
+  "Zcxssxx/trackshield/model",
 }
