@@ -8,8 +8,8 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 
 - [x] Topic selected: TrackShield, multi-activity GPX privacy audit.
 - [x] Product design approved in chat.
-- [ ] Save, self-review, and obtain review of the written design specification.
-- [ ] Write and review the implementation plan.
+- [x] Save and self-review the written design specification; user approved it on 2026-10-25.
+- [x] Write and self-review the implementation plan; awaiting the user's choice to execute inline or delegate.
 - [ ] Implement library, CLI, tests, examples, documentation, license, provenance, and CI.
 - [ ] Verify with the current MoonBit stable toolchain and supported targets.
 - [ ] Complete local submission-readiness review.
@@ -29,5 +29,12 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 ## Progress pointers
 
 - Product specification: docs/superpowers/specs/2026-10-25-trackshield-design.md
+- Implementation plan: docs/superpowers/plans/2026-10-25-trackshield.md
 - Research and provenance notes: findings.md
 - Session progress: progress.md
+
+## Current gate
+
+- The next project action is selecting inline or delegated plan execution. No implementation source has been written in this phase.
+- Continue local-only work. Do not configure a GitHub remote, browse authenticated GitHub state, create a repository, push, or claim hosted CI status.
+- The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`.
