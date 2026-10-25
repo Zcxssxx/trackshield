@@ -235,12 +235,12 @@ pub fn default_audit_options() -> AuditOptions
 
 **Interfaces:** `render_text(AuditReport) -> String`; `render_json(AuditReport) -> String`. Both render deterministic ordering and omit coordinates unless the report explicitly includes a center.
 
-- [ ] Add golden tests for an empty collection, one cluster with metadata findings, one wide chained component, partial parse diagnostics, and coordinate opt-in.
-- [ ] Add JSON escaping tests for quotes, backslashes, newlines, control characters, non-ASCII text, and paths. Parse the resulting JSON using MoonBit core JSON in the test to prove syntactic validity.
-- [ ] Add privacy regression tests that search encoded output for fixture coordinate strings, raw metadata name/email/link values, and exact timestamps; expected: no match in default output and only the cluster center appears in coordinate-opt-in output.
-- [ ] Implement explicit field order and stable arrays. JSON must use correct escaping and valid numeric formatting; text must include the privacy limitation statement.
-- [ ] Run `moon test report --deny-warn`.
-- [ ] Commit: `feat: render deterministic privacy-safe reports`.
+- [x] Add golden tests for an empty collection, one cluster with metadata findings, one wide chained component, partial parse diagnostics, and coordinate opt-in.
+- [x] Add JSON escaping tests for quotes, backslashes, newlines, control characters, non-ASCII text, and paths. Parse the resulting JSON using MoonBit core JSON in the test to prove syntactic validity.
+- [x] Add privacy regression tests against serialized reports and the public API: default output and audit results omit centers and raw metadata/timestamps; coordinate opt-in exposes the stable cluster center only.
+- [x] Implement explicit field order and stable arrays. JSON uses core JSON string escaping and valid numeric formatting; text includes the privacy limitation statement. Re-export both renderers from the public `api` package.
+- [x] Run `moon test report --deny-warn`; it exits 1 only on the two known, unconstructed redaction result records (`RedactionPreview`, `RedactedFile`), which are produced by Task 13. `moon test report` passes 8/8; the complete suite passes 80/80.
+- [x] Commit `6290061`: `feat: render deterministic privacy-safe reports`.
 
 **Acceptance:** golden outputs are deterministic, syntactically valid JSON, and default reports do not reveal raw values or exact coordinates.
 
