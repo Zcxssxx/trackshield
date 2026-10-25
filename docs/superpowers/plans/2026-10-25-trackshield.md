@@ -210,7 +210,7 @@ pub fn default_audit_options() -> AuditOptions
 - [x] Implement a deterministic 3D spatial proximity graph using the geo package. Sort observations by stable source path, track ordinal, kind, observation index, and coordinates before assigning stable finding IDs.
 - [x] Omit the center unless `include_coordinates`; always report distinct files, distinct tracks, evidence references, and max center distance when a stable center exists. The optional max-distance field is absent if the spherical center is undefined; that component is not marked wide without a computable radius and carries `geo.undefined_center`.
 - [x] Run `moon test audit --deny-warn` and `moon test --deny-warn`; both currently fail only because `RedactionPreview` and `RedactedFile` are intentionally not yet constructed before the redaction task. Ordinary full tests pass 62/62.
-- [ ] Commit: `feat: find repeated endpoints across GPX collections`.
+- [x] Commit: `feat: find repeated endpoints across GPX collections` (`e8c486f`).
 
 **Acceptance:** repeated-location findings are reproducible under input reordering, respect distinct-file thresholds, and never label a location or person.
 
