@@ -62,3 +62,11 @@ pub fn audit_collection(
 ///|
 /// Distance in metres along the mean-Earth-radius sphere.
 pub using @geo {distance_m, max_distance_from_center, spherical_mean}
+
+///|
+/// Stable human-readable rendering of an audit report.
+pub using @report {render_text}
+
+///|
+/// Stable JSON rendering of an audit report.
+pub using @report {render_json}

@@ -273,6 +273,49 @@ test "collection metadata findings omit GPX values and exact coordinates" {
 }
 
 ///|
+test "public reports hide source values and gate cluster centers behind opt-in" {
+  let limits = test_limits(10)
+  let first = inspect_text_at("a.gpx", fixture_metadata_gpx(), limits)
+  let second = inspect_text_at("b.gpx", fixture_metadata_gpx(), limits)
+  assert_true(first.analyzed && second.analyzed)
+
+  let default_options = @api.make_audit_options(500.0, 2, false).unwrap()
+  let default_report = @api.audit_collection([first, second], default_options)
+  assert_eq(default_report.repeated_locations.length(), 1)
+  assert_true(default_report.repeated_locations[0].center is None)
+  let default_json = @api.render_json(default_report)
+  let default_text = @api.render_text(default_report)
+  for output in [default_json, default_text] {
+    for
+      secret in [
+        "5.0,6.0", "private creator marker", "private metadata name", "private author",
+        "example.invalid", "https://private.invalid", "2026-01-02T00:00:00Z",
+      ] {
+      assert_false(output.contains(secret))
+    }
+  }
+
+  let opted_options = @api.make_audit_options(500.0, 2, true).unwrap()
+  let opted_report = @api.audit_collection([first, second], opted_options)
+  assert_true(opted_report.repeated_locations[0].center is Some(_))
+  let opted_json = @api.render_json(opted_report)
+  let opted_text = @api.render_text(opted_report)
+  assert_true(opted_json.contains("\"center\":{"))
+  assert_true(opted_json.contains("\"latitude\":5,"))
+  assert_true(opted_json.contains("\"longitude\":6}"))
+  assert_true(opted_text.contains("Center (sensitive): 5, 6"))
+  for output in [opted_json, opted_text] {
+    for
+      secret in [
+        "private creator marker", "private metadata name", "private author", "example.invalid",
+        "https://private.invalid", "2026-01-02T00:00:00Z",
+      ] {
+      assert_false(output.contains(secret))
+    }
+  }
+}
+
+///|
 test "identical metadata values from different files keep separate evidence" {
   let first = inspect_text_at("a.gpx", fixture_metadata_gpx(), test_limits(10))
   let second = inspect_text_at("b.gpx", fixture_metadata_gpx(), test_limits(10))
