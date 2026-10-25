@@ -33,22 +33,25 @@
 trackshield/
 ├── moon.mod
 ├── moon.pkg
+├── trackshield.mbt               # Root-package API facade only where appropriate
+├── trackshield_test.mbt
+├── trackshield_wbtest.mbt
+├── model/                         # Public input, options, diagnostics and report records
+├── xmlguard/                      # Byte, encoding and DTD preflight checks
+├── gpx/                           # GPX dependency adapter and TrackShield-owned mapping
+├── geo/                           # Distance, validation and spherical center calculations
+├── audit/                         # Endpoint graph and metadata finding aggregation
+├── redact/                        # Explicit-zone preview and transformation
+├── report/                        # Stable text and JSON rendering
+├── api/                           # Reusable public facade
+├── cmd/main/                      # Native CLI entry point and filesystem boundary
 ├── README.md
+├── README.mbt.md                  # Executable documentation examples
 ├── LICENSE
 ├── THIRD_PARTY_NOTICES.md
 ├── CHANGELOG.md
 ├── .gitignore
 ├── .github/workflows/test.yml
-├── src/
-│   ├── model/                  # Public input, options, diagnostics and report records
-│   ├── xmlguard/               # Byte, encoding and DTD preflight checks
-│   ├── gpx/                    # GPX dependency adapter and TrackShield-owned mapping
-│   ├── geo/                    # Distance, validation and spherical center calculations
-│   ├── audit/                  # Endpoint graph and metadata finding aggregation
-│   ├── redact/                 # Explicit-zone preview and transformation
-│   ├── report/                 # Stable text and JSON rendering
-│   ├── api/                    # Reusable public facade
-│   └── cmd/trackshield/        # Native CLI, filesystem and process exit behavior
 ├── testdata/                   # Authored minimal GPX 1.0/1.1 fixtures and README
 ├── examples/                   # Small redistributable synthetic collections
 └── docs/
@@ -58,11 +61,11 @@ trackshield/
     └── superpowers/{specs,plans}/
 ```
 
-The MoonBit scaffold may place package sources at the module root instead of `src/`; use the exact current `moon new --help` template and its generated manifest, then keep the package responsibilities above. Do not create parallel source roots or hand-edit generated `.mbti` interfaces.
+The inspected current scaffold uses the module root for its library package and one subdirectory per package; there is no `src/` source root. It initializes a Git repository, so use the inspected output only as a template and never run `moon new` in this already-initialized repository. On Windows without symlink privilege, create `README.md` as a regular file and update `moon.mod` to point to it. Do not create parallel source roots or hand-edit generated `.mbti` interfaces.
 
 ## Public API Contract
 
-The names below are TrackShield-owned and must be implemented in `src/api` after the module/package syntax is confirmed. If MoonBit syntax or the selected GPX dependency requires a naming adjustment, update this plan and the generated interface together before dependent tasks begin.
+The names below are TrackShield-owned and must be implemented in `api` after the module/package syntax is confirmed. If MoonBit syntax or the selected GPX dependency requires a naming adjustment, update this plan and the generated interface together before dependent tasks begin.
 
 ```text
 pub struct GpxInput { path: String, bytes: Bytes }
@@ -107,18 +110,20 @@ pub fn default_audit_options() -> AuditOptions
 
 **Interfaces:** Establish module namespace `Zcxssxx/trackshield` and confirm the exact package import paths and current generated module format before adding public types.
 
-- [ ] Re-open the official October landing page, formal charter, and supplemental page. Record displayed update dates, application fields and documents, project acceptance dates, rolling-review and revision policy, public-repository and source-control rules, licensing, Mooncakes, CI, and stable-toolchain requirements. Mark inaccessible or absent data as `待确认` and retain the original URLs.
-- [ ] Run `moon version --all`; compare the result with the latest stable release information available from an official MoonBit source. Do not treat “installed” as “latest” without comparison.
-- [ ] From an empty temporary directory, run `moon new <temp-path> --user Zcxssxx --name trackshield`; inspect the generated manifest, package layout, and CLI template. Do not repeat the unsupported `--dry-run` probe.
-- [ ] Create the actual module metadata and package skeleton without replacing `.git`, `docs/`, `findings.md`, `progress.md`, or `task_plan.md`.
-- [ ] Run `moon check --deny-warn` on the generated skeleton. Expected: successful check and only intentional generated files.
+- [x] Re-open the official October landing page, formal charter, and supplemental page. Record displayed update dates, application fields and documents, project acceptance dates, rolling-review and revision policy, public-repository and source-control rules, licensing, Mooncakes, CI, and stable-toolchain requirements. Mark inaccessible or absent data as `待确认` and retain the original URLs.
+- [x] Run `moon version --all`; compare the result with latest stable release information available from an official MoonBit source. The local output was collected; an authoritative version string was not exposed by the online official sources examined, so the latest-stable comparison is still pending.
+- [x] From an empty temporary directory, run `moon new <temp-path> --user Zcxssxx --name trackshield`; inspect the generated manifest, package layout, and CLI template. Do not repeat the unsupported `--dry-run` probe.
+- [x] Create the actual module metadata and package skeleton by adapting the inspected template without invoking `moon new` in this already initialized repository and without replacing `.git`, `docs/`, `findings.md`, `progress.md`, or `task_plan.md`.
+- [x] Run `moon check --deny-warn` on the generated skeleton. Expected: successful check and only intentional generated files. Result: exit 0, “Finished. moon: ran 6 tasks, now up to date”.
+- [x] Run `moon fmt --check`. The first check found noncanonical manifest formatting; `moon fmt` normalized it, and the fresh check returned exit 0.
+- [x] Run `moon run cmd/main` to verify the scaffold entry point executes. Result: exit 0 and output `TrackShield`.
 - [ ] Commit the module skeleton only after the source tree and manifests are self-consistent: `feat: scaffold TrackShield MoonBit module`.
 
-**Acceptance:** the refreshed rules are recorded with citations and unknowns labeled; the local toolchain version and comparison source are recorded; the root remains a local Git repository with no remote; an empty-template probe has not modified the real project before its output was inspected.
+**Acceptance:** refreshed rules and unknowns are recorded; the local toolchain version is recorded and its latest-stable status is verified or explicitly left pending with evidence; the root remains a local Git repository with no remote; the empty-template probe was inspected and safely removed before adapting the module files.
 
 ### Task 2: Probe GPX/XML dependencies and freeze the adapter boundary
 
-**Files:** `moon.mod`, `moon.pkg`, `src/gpx/moon.pkg`, `src/gpx/dependency_probe.mbt`, `src/gpx/dependency_probe_test.mbt`, `findings.md`.
+**Files:** `moon.mod`, `moon.pkg`, `gpx/moon.pkg`, `gpx/dependency_probe.mbt`, `gpx/dependency_probe_test.mbt`, `findings.md`.
 
 **Interfaces:** The probe exercises the selected dependency only. The TrackShield adapter boundary remains `inspect_gpx(GpxInput, InputLimits) -> FileInspection` and `redact_gpx(GpxInput, RedactionOptions, InputLimits) -> Result[RedactedFile, Diagnostic]`.
 
@@ -128,14 +133,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Write probe tests that parse and serialize each supported namespace/version fixture, compare semantic fields after round trip, and verify unsupported namespace/extension forms fail or are preserved exactly as claimed.
 - [ ] Add bounded adversarial-input probes for oversized bytes, a deep element tree, a huge text value, an internal entity declaration, an external file entity pointing only to a temporary sentinel, and malformed encodings. Assert rejection and assert the sentinel contents never occur in diagnostics or output.
 - [ ] If the dependency cannot meet the spec, document the observed gap and test an alternative adapter or implement a narrow TrackShield-owned XML boundary; do not silently weaken the safety or preservation claims.
-- [ ] Lock the dependency decision and actual adapter type mapping in `findings.md` and this plan before proceeding. Run `moon test src/gpx --deny-warn` and `moon check --deny-warn`.
+- [ ] Lock the dependency decision and actual adapter type mapping in `findings.md` and this plan before proceeding. Run `moon test gpx --deny-warn` and `moon check --deny-warn`.
 - [ ] Commit only the verified dependency boundary and authored probes: `test: establish GPX parser compatibility gate`.
 
 **Acceptance:** the supported XML namespace, extension round-trip, size behavior, DOCTYPE handling, and serializer guarantees are backed by runnable project tests against the exact resolved dependency.
 
 ### Task 3: Define public domain models, diagnostics, and validated options
 
-**Files:** `src/model/moon.pkg`, `src/model/diagnostic.mbt`, `src/model/input.mbt`, `src/model/audit.mbt`, `src/model/redaction.mbt`, `src/model/model_test.mbt`, `src/api/moon.pkg`, `src/api/api.mbt`.
+**Files:** `model/moon.pkg`, `model/diagnostic.mbt`, `model/input.mbt`, `model/audit.mbt`, `model/redaction.mbt`, `model/model_test.mbt`, `api/moon.pkg`, `api/api.mbt`.
 
 **Interfaces:** Implement the Public API Contract above. `inspect_gpx` and `audit_collection` must return structured diagnostics for invalid user data instead of panicking. Constructors/default functions validate positive radii, valid latitude/longitude, and positive support thresholds.
 
@@ -149,21 +154,21 @@ pub fn default_audit_options() -> AuditOptions
 
 ### Task 4: Implement bounded input and XML preflight
 
-**Files:** `src/xmlguard/moon.pkg`, `src/xmlguard/limits.mbt`, `src/xmlguard/xml_lex.mbt`, `src/xmlguard/xmlguard_test.mbt`, `src/api/api.mbt`.
+**Files:** `xmlguard/moon.pkg`, `xmlguard/limits.mbt`, `xmlguard/xml_lex.mbt`, `xmlguard/xmlguard_test.mbt`, `api/api.mbt`.
 
 **Interfaces:** Internal `validate_input(path: String, bytes: Bytes, limits: InputLimits) -> Array[Diagnostic]`; internal `reject_doctype(bytes: Bytes) -> Bool`. Wire the checks into `inspect_gpx`, preview, and redaction before invoking the GPX parser.
 
 - [ ] Test byte limits at `max_file_bytes - 1`, exactly the limit, and one byte over; verify the parser is not called for the over-limit case.
 - [ ] Test lexical handling of actual `<!DOCTYPE ...>` in case-insensitive forms, comments containing the same text, CDATA containing the text, quoted attribute content, UTF-8 BOM, malformed UTF-8, and processing instructions.
 - [ ] Implement a bounded prolog scanner that distinguishes markup from comments/CDATA/quoted text, with a maximum scan bounded by the configured byte limit. It must reject a real DOCTYPE before GPX parsing and must not reject harmless lookalikes in comments or CDATA.
-- [ ] Run `moon test src/xmlguard --deny-warn` and `moon check --deny-warn`.
+- [ ] Run `moon test xmlguard --deny-warn` and `moon check --deny-warn`.
 - [ ] Commit: `feat: reject unsafe and oversized GPX input`.
 
 **Acceptance:** all input checks are deterministic and occur before model parsing where applicable; no external resource is opened; diagnostics omit document content.
 
 ### Task 5: Build the GPX adapter and track/metadata extraction
 
-**Files:** `src/gpx/adapter.mbt`, `src/gpx/extract_tracks.mbt`, `src/gpx/extract_metadata.mbt`, `src/gpx/adapter_test.mbt`, `src/api/api.mbt`, `testdata/gpx-10/`, `testdata/gpx-11/`.
+**Files:** `gpx/adapter.mbt`, `gpx/extract_tracks.mbt`, `gpx/extract_metadata.mbt`, `gpx/adapter_test.mbt`, `api/api.mbt`, `testdata/gpx-10/`, `testdata/gpx-11/`.
 
 **Interfaces:** `inspect_gpx(input, limits) -> FileInspection`; internal adapter functions map the dependency model to TrackShield records. The endpoint rule is first point in the first non-empty track segment and last point in the last non-empty track segment. Each file contributes one source identity.
 
@@ -172,14 +177,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Test exact point-count boundary using authored files with `max_points_per_file` points and one point above; the over-limit file returns `input.point_limit_exceeded` without panicking.
 - [ ] Implement the adapter over the confirmed dependency types. Unsupported fields or namespaces receive stable diagnostics; do not convert a partial parse into `analyzed = true` without a diagnostic.
 - [ ] Ensure routes do not produce endpoint observations; one file containing several tracks still has one stable source identity.
-- [ ] Run `moon test src/gpx --deny-warn`; round-trip the supported fixture set and compare fields including extensions that the selected dependency claims to preserve.
+- [ ] Run `moon test gpx --deny-warn`; round-trip the supported fixture set and compare fields including extensions that the selected dependency claims to preserve.
 - [ ] Commit: `feat: inspect GPX tracks and metadata`.
 
 **Acceptance:** file inspection obeys endpoint and metadata rules, works for the verified versions, and never echoes metadata values.
 
 ### Task 6: Implement geodesic distance and spherical center calculations
 
-**Files:** `src/geo/moon.pkg`, `src/geo/distance.mbt`, `src/geo/center.mbt`, `src/geo/geo_test.mbt`.
+**Files:** `geo/moon.pkg`, `geo/distance.mbt`, `geo/center.mbt`, `geo/geo_test.mbt`.
 
 **Interfaces:** `distance_m(a: GeoPoint, b: GeoPoint) -> Double`; `spherical_mean(points: Array[GeoPoint]) -> Result[GeoPoint, Diagnostic]`; `max_distance_from_center(points: Array[GeoPoint], center: GeoPoint) -> Double`.
 
@@ -187,14 +192,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Add center tests for identical points, a cluster crossing the antimeridian, a high-latitude cluster, and antipodal/near-zero resultant vectors.
 - [ ] Implement haversine distance with normalized longitude delta and spherical-mean center. Return a diagnostic for a center that cannot be stably defined instead of selecting an arbitrary point.
 - [ ] Verify symmetry, non-negative output, identity distance, and threshold comparison at `r - tolerance`, `r`, and `r + tolerance`.
-- [ ] Run `moon test src/geo --deny-warn`.
+- [ ] Run `moon test geo --deny-warn`.
 - [ ] Commit: `feat: add robust geographic calculations`.
 
 **Acceptance:** numerical tests pass on the selected backend and all comparisons use one documented metre/tolerance policy.
 
 ### Task 7: Aggregate repeated endpoints across distinct files
 
-**Files:** `src/audit/moon.pkg`, `src/audit/endpoint_graph.mbt`, `src/audit/clusters.mbt`, `src/audit/cluster_test.mbt`, `src/api/api.mbt`.
+**Files:** `audit/moon.pkg`, `audit/endpoint_graph.mbt`, `audit/clusters.mbt`, `audit/cluster_test.mbt`, `api/api.mbt`.
 
 **Interfaces:** `audit_collection(inspections: Array[FileInspection], options: AuditOptions) -> AuditReport`; each connected component is qualified by distinct file count, while distinct track count is reported separately.
 
@@ -203,14 +208,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Add tests for identical endpoints, no endpoints, invalid coordinates in one inspection, duplicate paths, and a component exactly at the configured distance.
 - [ ] Implement a deterministic spatial proximity graph using the geo package. Sort observations by stable source path, track ordinal, kind, and observation index before assigning stable finding IDs.
 - [ ] Omit the center unless `include_coordinates`; always report distinct files, distinct tracks, evidence references, max center distance when a stable center exists, and the chained/wide flag.
-- [ ] Run `moon test src/audit --deny-warn` and `moon test --deny-warn`.
+- [ ] Run `moon test audit --deny-warn` and `moon test --deny-warn`.
 - [ ] Commit: `feat: find repeated endpoints across GPX collections`.
 
 **Acceptance:** repeated-location findings are reproducible under input reordering, respect distinct-file thresholds, and never label a location or person.
 
 ### Task 8: Add safe metadata audit aggregation
 
-**Files:** `src/audit/metadata.mbt`, `src/audit/metadata_test.mbt`, `src/api/api.mbt`.
+**Files:** `audit/metadata.mbt`, `audit/metadata_test.mbt`, `api/api.mbt`.
 
 **Interfaces:** Metadata findings are aggregated by stable path/category/item ordinal; values remain absent from the public metadata report.
 
@@ -218,14 +223,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Test that identical field values in different files yield separate path evidence and that field text, email, URL, timestamp, and coordinates never appear in the serialized finding.
 - [ ] Test that duplicate entries in `remove_metadata` or category aggregation do not double-count one source field.
 - [ ] Implement deterministic metadata aggregation and stable diagnostic merge. Do not include values even when a parse error occurs.
-- [ ] Run `moon test src/audit --deny-warn`.
+- [ ] Run `moon test audit --deny-warn`.
 - [ ] Commit: `feat: report GPX metadata exposure safely`.
 
 **Acceptance:** all spec categories are represented, counts are explicit, order is stable, and sensitive values are not retained in report records.
 
 ### Task 9: Render stable text and JSON reports
 
-**Files:** `src/report/moon.pkg`, `src/report/text.mbt`, `src/report/json.mbt`, `src/report/report_test.mbt`, `src/api/api.mbt`.
+**Files:** `report/moon.pkg`, `report/text.mbt`, `report/json.mbt`, `report/report_test.mbt`, `api/api.mbt`.
 
 **Interfaces:** `render_text(AuditReport) -> String`; `render_json(AuditReport) -> String`. Both render deterministic ordering and omit coordinates unless the report explicitly includes a center.
 
@@ -233,14 +238,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Add JSON escaping tests for quotes, backslashes, newlines, control characters, non-ASCII text, and paths. Parse the resulting JSON using MoonBit core JSON in the test to prove syntactic validity.
 - [ ] Add privacy regression tests that search encoded output for fixture coordinate strings, raw metadata name/email/link values, and exact timestamps; expected: no match in default output and only the cluster center appears in coordinate-opt-in output.
 - [ ] Implement explicit field order and stable arrays. JSON must use correct escaping and valid numeric formatting; text must include the privacy limitation statement.
-- [ ] Run `moon test src/report --deny-warn`.
+- [ ] Run `moon test report --deny-warn`.
 - [ ] Commit: `feat: render deterministic privacy-safe reports`.
 
 **Acceptance:** golden outputs are deterministic, syntactically valid JSON, and default reports do not reveal raw values or exact coordinates.
 
 ### Task 10: Implement deterministic audit CLI and file traversal
 
-**Files:** `src/cmd/trackshield/moon.pkg`, `src/cmd/trackshield/main.mbt`, `src/cmd/trackshield/args.mbt`, `src/cmd/trackshield/input_files.mbt`, `src/cmd/trackshield/audit_command.mbt`, `src/cmd/trackshield/cli_test.mbt`, `README.md`.
+**Files:** `cmd/main/moon.pkg`, `cmd/main/main.mbt`, `cmd/main/args.mbt`, `cmd/main/input_files.mbt`, `cmd/main/audit_command.mbt`, `cmd/main/cli_test.mbt`, `README.md`.
 
 **Interfaces:** Native executable command `trackshield audit <path>... [--radius-m <number>] [--min-files <positive-int>] [--format text|json] [--show-coordinates] [--max-file-bytes <positive-int>] [--max-points <positive-int>] [--max-files <positive-int>] [--max-total-bytes <positive-int>]`; filesystem adapter loads and inspects one file at a time and passes `Array[FileInspection]` to the library.
 
@@ -251,14 +256,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Implement exit code 0 when all inputs are analyzed regardless of privacy findings, exit code 1 for one or more unanalyzable inputs with a report, and exit code 2 for usage/fatal errors before a report.
 - [ ] Test reports written to stdout only; errors and diagnostic summaries go to stderr; no raw metadata values or coordinates are logged.
 - [ ] Add runnable audit invocations to README and verify each invocation against the synthetic examples.
-- [ ] Run `moon run src/cmd/trackshield -- --help`, the documented text and JSON commands, `moon test src/cmd/trackshield --deny-warn`, and `moon build --target native --deny-warn`.
+- [ ] Run `moon run cmd/main -- --help`, the documented text and JSON commands, `moon test cmd/main --deny-warn`, and `moon build --target native --deny-warn`.
 - [ ] Commit: `feat: add deterministic audit CLI`.
 
 **Acceptance:** CLI works against files and directories on the supported native OS, does not follow links by default, and returns the specified exit codes.
 
 ### Task 11: Plan redaction for explicit user-supplied circles
 
-**Files:** `src/redact/moon.pkg`, `src/redact/preview.mbt`, `src/redact/options.mbt`, `src/redact/redaction_test.mbt`, `src/api/api.mbt`, `docs/privacy-model.md`.
+**Files:** `redact/moon.pkg`, `redact/preview.mbt`, `redact/options.mbt`, `redact/redaction_test.mbt`, `api/api.mbt`, `docs/privacy-model.md`.
 
 **Interfaces:** `preview_redaction(input: GpxInput, options: RedactionOptions, limits: InputLimits) -> RedactionPreview`; the supplied circle is independent of audit findings. Preview computes exact change counts but writes nothing.
 
@@ -266,14 +271,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Test that preview returns counts for track points, new segments, routes, waypoints, and selected metadata; test an input that would become empty.
 - [ ] Implement preview from explicit config only. Do not accept a cluster ID as a center or silently reuse audit output.
 - [ ] Add a library-level test that calling preview creates no filesystem path; the API package must not import filesystem functionality.
-- [ ] Run `moon test src/redact --deny-warn`.
+- [ ] Run `moon test redact --deny-warn`.
 - [ ] Commit: `feat: preview explicit-zone GPX redaction`.
 
 **Acceptance:** preview is pure, deterministic, and reports all affected object counts without writing or inferring a zone.
 
 ### Task 12: Transform track, route, waypoint, and selected metadata safely
 
-**Files:** `src/redact/transform.mbt`, `src/redact/metadata.mbt`, `src/redact/transform_test.mbt`, `src/gpx/adapter.mbt`.
+**Files:** `redact/transform.mbt`, `redact/metadata.mbt`, `redact/transform_test.mbt`, `gpx/adapter.mbt`.
 
 **Interfaces:** `redact_gpx(GpxInput, RedactionOptions, InputLimits) -> Result[RedactedFile, Diagnostic]`; implementation removes points inside the explicit circle, splits each retained run into distinct segments, filters routes/waypoints, and removes only selected metadata categories.
 
@@ -282,14 +287,14 @@ pub fn default_audit_options() -> AuditOptions
 - [ ] Write round-trip tests for supported extensions and unknown optional fields. If the dependency cannot preserve an unselected field, return `gpx.lossless_redaction_unsupported` and do not produce bytes that imply successful preservation.
 - [ ] Implement track splitting so no output segment bridges a removed run; omit empty tracks/routes and emit diagnostics. Do not output an empty file when all track, route, and waypoint content is removed.
 - [ ] Re-parse transformed bytes through the same hardened adapter and validate the supported GPX version, point ranges, and expected removal counts before returning `RedactedFile`.
-- [ ] Run `moon test src/redact --deny-warn` and `moon test --deny-warn`.
+- [ ] Run `moon test redact --deny-warn` and `moon test --deny-warn`.
 - [ ] Commit: `feat: redact GPX data without bridging removed areas`.
 
 **Acceptance:** originals are untouched, every written candidate reparses, and all unselected supported fields/extensions match the input semantically.
 
 ### Task 13: Add safe filesystem writes and redaction CLI
 
-**Files:** `src/cmd/trackshield/redact_command.mbt`, `src/cmd/trackshield/safe_output.mbt`, `src/cmd/trackshield/redact_cli_test.mbt`, `README.md`, `docs/formats-and-limits.md`.
+**Files:** `cmd/main/redact_command.mbt`, `cmd/main/safe_output.mbt`, `cmd/main/redact_cli_test.mbt`, `README.md`, `docs/formats-and-limits.md`.
 
 **Interfaces:** `trackshield redact <path>... --center LAT,LON --radius-m N [--remove-metadata CATEGORY,...] [--write --output-dir DIR]`. Without `--write`, the command previews only. With `--write`, every destination path is new and is re-parsed before final publication.
 
@@ -305,7 +310,7 @@ pub fn default_audit_options() -> AuditOptions
 
 ### Task 14: Complete adversarial, compatibility, and regression tests
 
-**Files:** `testdata/README.md`, `src/*/*_test.mbt`, `src/cmd/trackshield/*_test.mbt`, `docs/formats-and-limits.md`.
+**Files:** `testdata/README.md`, `*/*_test.mbt`, `cmd/main/*_test.mbt`, `docs/formats-and-limits.md`.
 
 **Interfaces:** Tests exercise only the public API or one package boundary at a time; expected error cases compare stable diagnostic codes rather than parser-specific prose.
 
@@ -355,7 +360,7 @@ pub fn default_audit_options() -> AuditOptions
 **Interfaces:** No functional API changes unless verification uncovers a concrete defect; any correction returns through its package test and verification cycle.
 
 - [ ] Run and record `moon version --all` and compare with the exact CI installation. Confirm both match the current stable version selected from an official source and the current competition rule, or explain the discrepancy.
-- [ ] Run separately and record full exit status/output summaries for `moon fmt --check`, `moon check --deny-warn`, `moon test --deny-warn`, `moon build --target native --deny-warn`, supported non-native build/test targets, `moon run src/cmd/trackshield -- --help`, and every documented example.
+- [ ] Run separately and record full exit status/output summaries for `moon fmt --check`, `moon check --deny-warn`, `moon test --deny-warn`, `moon build --target native --deny-warn`, supported non-native build/test targets, `moon run cmd/main -- --help`, and every documented example.
 - [ ] Run `moon info` with no warning-denial argument; inspect all `pkg.generated.mbti` changes and retain only intentional public API snapshots.
 - [ ] Count `.mbt` lines by production and tests using a reproducible PowerShell command that includes tracked `.mbt` files and excludes generated build directories. Report the exact counts and do not add nonfunctional code to hit the target.
 - [ ] Use this count command after all source changes are committed; it separates implementation from test files and excludes generated build directories:

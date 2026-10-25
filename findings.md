@@ -52,6 +52,15 @@ Checked 2026-10-25 against the current [2026 MoonBit Hackathon landing page](htt
 - Current page retrieval could not expose either Feishu document's body. Their update timestamps, full application materials, review/modification details, exact license requirements, Mooncakes publication requirements, CI requirements, and toolchain-version clauses remain `待确认`.
 - Do not infer 2026 Hackathon requirements from OSC 2026, the August Hackathon, or another competition. Re-open these sources before preparing the final application package.
 - The installed toolchain on 2026-10-25 is `moon 0.1.20261023 (3778465 2026-10-23)`, `moonc v0.10.17+d971670cd (2026-10-23)`, and `moonrun 0.1.20261023`. An official latest-stable comparison has not yet been recorded.
+- The official [MoonBit download page](https://www.moonbitlang.com/download/) describes installing the “latest moonbit toolchain” and provides `/binaries/latest/` checksum URLs, but the page does not print the corresponding version number. The official [updates page](https://www.moonbitlang.com/updates) retrieved in this check has no match for `0.10.17` or `20261023`; the latest-stable comparison is therefore still `待确认`, not inferred from the local binary timestamp.
+- The official download page says the supported Windows installation route is the VS Code “MoonBit:install latest moonbit toolchain” command or the PowerShell installer. Do not run a machine-wide installer unless an update is proven necessary and permitted by the workspace boundary.
+
+## Scaffold probe
+
+- A temporary `moon new <path> --user Zcxssxx --name trackshield` probe showed the current template uses a root package, `cmd/main`, `moon.mod`, `moon.pkg`, root Apache-2.0 `LICENSE`, `.gitignore`, root `README.mbt.md`, tests, and a Copilot setup workflow. It also initializes a `.git` directory; only selected template content should be adapted into the existing repository.
+- On this Windows host, the template's `README.md -> README.mbt.md` symlink creation failed with OS error 1314. TrackShield will use a regular `README.md` and update `moon.mod` accordingly.
+- The first cleanup attempt on the temporary template encountered Windows access errors. The exact temp path was revalidated under `%TEMP%`, removed using `Remove-Item -Force -Recurse`, and its absence verified.
+- The actual module files were created manually without running `moon new` in the existing repository. `moon check --deny-warn` passed, and `moon run cmd/main` printed `TrackShield`.
 
 ### Local tool behavior checked
 
