@@ -17,7 +17,7 @@ fn fixture_gpx_11() -> String {
 fn fixture_gpx_10() -> String {
   (
     #|<?xml version="1.0" encoding="UTF-8"?>
-    #|<gpx version="1.0" creator="TrackShield fixture">
+    #|<gpx version="1.0" creator="TrackShield fixture" xmlns="http://www.topografix.com/GPX/1/0">
     #|  <name>legacy fixture</name>
     #|  <trk><name>legacy track</name><trkseg>
     #|    <trkpt lat="37.0" lon="-122.0" />

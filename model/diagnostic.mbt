@@ -42,6 +42,15 @@ pub let code_invalid_support : String = "audit.invalid_support"
 pub let code_invalid_limits : String = "input.invalid_limits"
 
 ///|
+pub let code_file_too_large : String = "input.file_too_large"
+
+///|
+pub let code_invalid_utf8 : String = "xml.invalid_utf8"
+
+///|
+pub let code_unsupported_encoding : String = "xml.unsupported_encoding"
+
+///|
 pub let code_doctype_forbidden : String = "xml.doctype_forbidden"
 
 ///|

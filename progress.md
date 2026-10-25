@@ -54,3 +54,12 @@
 - `moon test model` exited 0 with 10/10 tests passed. `moon test api` exited 0 with 1/1 test passed, including construction of `GpxInput` and a redaction option through the public facade.
 - `moon info --package api` and `moon info --package model` exited 0 and generated package interfaces. They currently emit eight `struct_never_constructed` warnings for the result records that parser, audit, and redaction implementations have not yet produced. `moon test api --deny-warn` also fails on those same warnings; this is recorded and will be rerun after the planned producer implementations rather than hidden with dummy constructors.
 - Full module `moon check --deny-warn` remains deferred until the GPX adapter consumes the pinned dependency and the result-record producers exist. No operational parser/audit/redaction stubs have been added.
+
+## 2026-10-25 XML preflight work
+
+- Implemented `internal/xmlguard` with bounded byte checks, UTF-8/XML declaration validation, lexical DOCTYPE rejection, root/namespace/version checks, XML tag nesting validation, and configurable depth/element caps. It does not open external resources and diagnostics do not echo input content.
+- Added 13 XML guard tests for byte-size boundaries; real DTD versus comment/CDATA/quoted text; UTF-8 BOM, malformed byte sequences and declarations; malformed roots/tags; namespace/version handling; prefixed core elements and extension payloads; and depth/element boundaries.
+- `moon fmt --check` passed. `moon test internal/xmlguard` passed 13/13; `moon test gpx` passed 4/4; `moon test model` passed 10/10; `moon test api` passed 1/1. `moon info --package model` and `moon info --package api` exited 0 and regenerated interfaces, each reporting the same eight planned result-record warnings.
+- `moon test internal/xmlguard --deny-warn` exited 1 on those eight `struct_never_constructed` warnings. `moon check --deny-warn` exited 1 on those eight plus `unused_package` for `2973181701/moongpx`; the production adapter will consume that dependency in Task 5. No warning was suppressed.
+- The scanner is not yet on a public parse path because `inspect_gpx` is introduced with Task 5. The next task must run `validate_input` before dependency parsing and add a test proving rejected input does not reach the parser.
+- Corrected the authored GPX 1.0 compatibility fixture to use the official Topografix 1.0 namespace URI; the pinned dependency probes still pass 4/4.

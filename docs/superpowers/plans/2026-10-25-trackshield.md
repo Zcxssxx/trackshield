@@ -37,7 +37,7 @@ trackshield/
 ├── trackshield_test.mbt
 ├── trackshield_wbtest.mbt
 ├── model/                         # Public input, options, diagnostics and report records
-├── xmlguard/                      # Byte, encoding and DTD preflight checks
+├── internal/xmlguard/             # Byte, encoding and DTD preflight checks
 ├── gpx/                           # GPX dependency adapter and TrackShield-owned mapping
 ├── geo/                           # Distance, validation and spherical center calculations
 ├── audit/                         # Endpoint graph and metadata finding aggregation
@@ -148,24 +148,24 @@ pub fn default_audit_options() -> AuditOptions
 - [x] Define stable diagnostic codes and test that rendering omits a sensitive source path while preserving the stable code and safe message.
 - [x] Implement validated `make_geo_point`, `make_input_limits`, `make_audit_options`, and `make_redaction_options`; add default settings and a `GpxInput` constructor. Readonly MoonBit `pub struct` types prevent construction or mutation from outside their defining package; the redaction constructor snapshots the caller's category array.
 - [x] Re-export model types and validated constructors from `api`; `moon info --package api` and `moon info --package model` generated the intended interfaces. No fake operational API stubs are added; parsing, auditing, and redaction entry points will be introduced with real implementations in later tasks.
-- [ ] `moon test model` (10/10) and `moon test api` (1/1) pass. `moon check --deny-warn` still reports `struct_never_constructed` for result records that later parser/audit/redaction tasks will produce. Re-run warning-denial after those implementations construct the types; do not suppress the diagnostics or add dummy constructors solely to silence them.
-- [ ] Commit: `feat: define TrackShield API and diagnostic model`.
+- [x] `moon test model` (10/10) and `moon test api` (1/1) pass. `moon check --deny-warn` still reports `struct_never_constructed` for result records that later parser/audit/redaction tasks will produce. Re-run warning-denial after those implementations construct the types; do not suppress the diagnostics or add dummy constructors solely to silence them.
+- [x] Commit: `feat: define TrackShield API and diagnostic model` (`37bef2f`).
 
 **Acceptance:** generated `.mbti` exposes the intended readonly model and validated constructors; invalid options produce stable structured errors; package tests pass. Full warning-denial is confirmed after the planned producers for each result type are implemented.
 
 ### Task 4: Implement bounded input and XML preflight
 
-**Files:** `xmlguard/moon.pkg`, `xmlguard/limits.mbt`, `xmlguard/xml_lex.mbt`, `xmlguard/xmlguard_test.mbt`, `api/api.mbt`.
+**Files:** `internal/xmlguard/moon.pkg`, `internal/xmlguard/limits.mbt`, `internal/xmlguard/xml_lex.mbt`, `internal/xmlguard/xmlguard_test.mbt`, `api/api.mbt`.
 
 **Interfaces:** Internal `validate_input(path: String, bytes: Bytes, limits: InputLimits) -> Array[Diagnostic]`; internal `preflight_xml(bytes: Bytes, max_depth: Int, max_elements: Int) -> Result[Unit, Diagnostic]`. The preflight rejects DOCTYPE, malformed markup, nesting beyond the documented hard cap, and excessive element counts before any GPX model is allocated. Wire the checks into inspection, preview, and redaction before invoking the GPX parser.
 
-- [ ] Test byte limits at `max_file_bytes - 1`, exactly the limit, and one byte over; verify the parser is not called for the over-limit case.
-- [ ] Test lexical handling of actual `<!DOCTYPE ...>` declarations, comments containing the same text, CDATA containing the text, quoted attribute content, UTF-8 BOM, malformed UTF-8, and processing instructions. Reject prefixed GPX element names with a stable diagnostic before the dependency parser.
-- [ ] Implement a bounded XML tokenizer that distinguishes markup from comments/CDATA/quoted text, scans at most the configured file limit, rejects real DOCTYPE, and enforces the XML depth and element-count caps before GPX parsing.
-- [ ] Run `moon test xmlguard --deny-warn` and `moon check --deny-warn`.
+- [x] Test byte limits at `max_file_bytes - 1`, exactly the limit, and one byte over. Public parser-call short-circuit coverage is deferred to Task 5, when `inspect_gpx` exists.
+- [x] Test lexical handling of actual `<!DOCTYPE ...>` declarations, comments containing the same text, CDATA containing the text, quoted attribute content, UTF-8 BOM, malformed UTF-8, processing instructions, and prefixed GPX element rejection.
+- [x] Implement the bounded XML tokenizer and input validator. The functions are in `internal/xmlguard`; Task 5 must invoke them before calling the dependency parser.
+- [ ] `moon test internal/xmlguard --deny-warn` and `moon check --deny-warn` are currently blocked by eight planned-but-not-yet-constructed public result records; full warning-denial remains scheduled after parser/audit/redaction producers exist. Ordinary package tests pass (13/13), with no XML guard warnings.
 - [ ] Commit: `feat: reject unsafe and oversized GPX input`.
 
-**Acceptance:** all input checks are deterministic and occur before model parsing where applicable; no external resource is opened; diagnostics omit document content.
+**Acceptance:** preflight helpers are deterministic, bounded, reject unsafe input, perform no external I/O, and omit document content from diagnostics. Task 5 owns the public-call-path proof that the helpers run before model parsing.
 
 ### Task 5: Build the GPX adapter and track/metadata extraction
 
@@ -173,7 +173,7 @@ pub fn default_audit_options() -> AuditOptions
 
 **Interfaces:** `inspect_gpx(input, limits) -> FileInspection`; internal adapter functions map the dependency model to TrackShield records. The endpoint rule is first point in the first non-empty track segment and last point in the last non-empty track segment. Each file contributes one source identity.
 
-- [ ] Write parser tests for GPX 1.0 and 1.1, multiple tracks, multiple segments, leading/trailing empty segments, an entirely empty track, routes without tracks, waypoint-only input, mixed namespace forms, and a malformed file beside a valid file.
+- [ ] Write parser tests for GPX 1.0 and 1.1, multiple tracks, multiple segments, leading/trailing empty segments, an entirely empty track, routes without tracks, waypoint-only input, mixed namespace forms, and a malformed file beside a valid file. Every public parse path must first call `internal/xmlguard.validate_input`; assert that a rejected oversize/DTD document never reaches semantic parsing.
 - [ ] Write metadata tests for creator, metadata name/description, author name/email, links, track/route/waypoint labels and descriptions, timestamp presence and coverage, and extension presence. Assert findings include category and ordinal only, not values.
 - [ ] Test exact point-count boundary using authored files with `max_points_per_file` points and one point above; the over-limit file returns `input.point_limit_exceeded` without panicking.
 - [ ] Implement the adapter over the confirmed dependency types. Unsupported fields or namespaces receive stable diagnostics; do not convert a partial parse into `analyzed = true` without a diagnostic.

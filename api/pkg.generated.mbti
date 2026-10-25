@@ -8,6 +8,8 @@ import {
 // Values
 pub let code_doctype_forbidden : String
 
+pub let code_file_too_large : String
+
 pub let code_gpx_parse_failed : String
 
 pub let code_invalid_latitude : String
@@ -20,7 +22,11 @@ pub let code_invalid_radius : String
 
 pub let code_invalid_support : String
 
+pub let code_invalid_utf8 : String
+
 pub let code_invalid_xml : String
+
+pub let code_unsupported_encoding : String
 
 pub let code_unsupported_namespace : String
 
