@@ -1,0 +1,181 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Zcxssxx/trackshield/model"
+
+// Values
+pub let code_doctype_forbidden : String
+
+pub let code_gpx_parse_failed : String
+
+pub let code_invalid_latitude : String
+
+pub let code_invalid_limits : String
+
+pub let code_invalid_longitude : String
+
+pub let code_invalid_radius : String
+
+pub let code_invalid_support : String
+
+pub let code_invalid_xml : String
+
+pub let code_unsupported_namespace : String
+
+pub let code_xml_too_deep : String
+
+pub let code_xml_too_many_elements : String
+
+pub fn default_audit_options() -> AuditOptions
+
+pub fn default_input_limits() -> InputLimits
+
+pub fn make_audit_options(Double, Int32, Bool) -> Result[AuditOptions, Diagnostic]
+
+pub fn make_geo_point(Double, Double) -> Result[GeoPoint, Diagnostic]
+
+pub fn make_input_limits(Int32, Int32, Int32, Int32, Int32, Int32) -> Result[InputLimits, Diagnostic]
+
+pub fn make_redaction_options(GeoPoint, Double, Array[MetadataCategory]) -> Result[RedactionOptions, Diagnostic]
+
+// Errors
+
+// Types and methods
+pub struct AuditOptions {
+  radius_m : Double
+  min_distinct_files : Int32
+  include_coordinates : Bool
+}
+
+pub struct AuditReport {
+  options : AuditOptions
+  repeated_locations : Array[RepeatedLocation]
+  metadata_findings : Array[MetadataFinding]
+  diagnostics : Array[Diagnostic]
+}
+
+pub struct Diagnostic {
+  code : String
+  severity : Severity
+  path : String
+  message : String
+}
+pub fn Diagnostic::new(String, Severity, String, String) -> Self
+pub fn Diagnostic::to_string(Self) -> String
+
+pub struct EndpointEvidence {
+  source_path : String
+  track_ordinal : Int32
+  kind : EndpointKind
+  observation_index : Int32
+}
+
+pub(all) enum EndpointKind {
+  Start
+  End
+}
+pub fn EndpointKind::to_string(Self) -> String
+
+pub struct EndpointObservation {
+  source_path : String
+  track_ordinal : Int32
+  kind : EndpointKind
+  observation_index : Int32
+  point : GeoPoint
+}
+
+pub struct FileInspection {
+  source_path : String
+  endpoints : Array[EndpointObservation]
+  metadata_findings : Array[MetadataFinding]
+  diagnostics : Array[Diagnostic]
+  track_count : Int32
+  point_count : Int32
+  analyzed : Bool
+}
+
+pub struct GeoPoint {
+  latitude : Double
+  longitude : Double
+}
+
+pub struct GpxInput {
+  path : String
+  bytes : Bytes
+}
+pub fn GpxInput::new(String, Bytes) -> Self
+
+pub struct InputLimits {
+  max_file_bytes : Int32
+  max_points_per_file : Int32
+  max_files : Int32
+  max_total_bytes : Int32
+  max_xml_depth : Int32
+  max_xml_elements : Int32
+}
+
+pub(all) enum MetadataCategory {
+  Creator
+  MetadataName
+  MetadataDescription
+  AuthorName
+  AuthorEmail
+  Link
+  TrackName
+  TrackDescription
+  RouteName
+  RouteDescription
+  WaypointName
+  WaypointDescription
+  PointTimestamp
+  Extensions
+}
+pub fn MetadataCategory::to_string(Self) -> String
+
+pub struct MetadataFinding {
+  source_path : String
+  category : MetadataCategory
+  item_ordinal : Int32
+  occurrence_count : Int32
+}
+
+pub struct RedactedFile {
+  bytes : Bytes
+  preview : RedactionPreview
+}
+
+pub struct RedactionOptions {
+  center : GeoPoint
+  radius_m : Double
+  remove_metadata : Array[MetadataCategory]
+}
+
+pub struct RedactionPreview {
+  source_path : String
+  points_removed : Int32
+  segments_created : Int32
+  routes_removed : Int32
+  waypoints_removed : Int32
+  metadata_fields_removed : Int32
+  output_would_be_empty : Bool
+  diagnostics : Array[Diagnostic]
+}
+
+pub struct RepeatedLocation {
+  id : String
+  distinct_file_count : Int32
+  distinct_track_count : Int32
+  evidence : Array[EndpointEvidence]
+  center : GeoPoint?
+  max_distance_from_center_m : Double
+  wide_component : Bool
+}
+
+pub(all) enum Severity {
+  Info
+  Warning
+  Error
+}
+pub fn Severity::to_string(Self) -> String
+
+// Type aliases
+
+// Traits

@@ -69,7 +69,7 @@ The names below are TrackShield-owned and must be implemented in `api` after the
 
 ```text
 pub struct GpxInput { path: String, bytes: Bytes }
-pub struct InputLimits { max_file_bytes: Int, max_points_per_file: Int, max_files: Int, max_total_bytes: Int }
+pub struct InputLimits { max_file_bytes: Int, max_points_per_file: Int, max_files: Int, max_total_bytes: Int, max_xml_depth: Int, max_xml_elements: Int }
 pub struct GeoPoint { latitude: Double, longitude: Double }
 pub enum EndpointKind { Start; End }
 pub enum Severity { Info; Warning; Error }
@@ -91,7 +91,7 @@ pub fn audit_collection(inspections: Array[FileInspection], options: AuditOption
 pub fn preview_redaction(input: GpxInput, options: RedactionOptions, limits: InputLimits) -> RedactionPreview
 pub fn redact_gpx(input: GpxInput, options: RedactionOptions, limits: InputLimits) -> Result[RedactedFile, Diagnostic]
 pub fn make_geo_point(latitude: Double, longitude: Double) -> Result[GeoPoint, Diagnostic]
-pub fn make_input_limits(max_file_bytes: Int, max_points_per_file: Int, max_files: Int, max_total_bytes: Int) -> Result[InputLimits, Diagnostic]
+pub fn make_input_limits(max_file_bytes: Int, max_points_per_file: Int, max_files: Int, max_total_bytes: Int, max_xml_depth: Int, max_xml_elements: Int) -> Result[InputLimits, Diagnostic]
 pub fn make_audit_options(radius_m: Double, min_distinct_files: Int, include_coordinates: Bool) -> Result[AuditOptions, Diagnostic]
 pub fn make_redaction_options(center: GeoPoint, radius_m: Double, remove_metadata: Array[MetadataCategory]) -> Result[RedactionOptions, Diagnostic]
 pub fn render_text(report: AuditReport) -> String
@@ -142,15 +142,16 @@ pub fn default_audit_options() -> AuditOptions
 
 **Files:** `model/moon.pkg`, `model/diagnostic.mbt`, `model/input.mbt`, `model/audit.mbt`, `model/redaction.mbt`, `model/model_test.mbt`, `api/moon.pkg`, `api/api.mbt`.
 
-**Interfaces:** Implement the Public API Contract above. `inspect_gpx` and `audit_collection` must return structured diagnostics for invalid user data instead of panicking. Constructors/default functions validate positive radii, valid latitude/longitude, and positive support thresholds.
+**Interfaces:** Implement the Public API Contract above. `inspect_gpx` and `audit_collection` must return structured diagnostics for invalid user data instead of panicking. Constructors/default functions validate finite geographic values, positive radii, valid latitude/longitude, positive resource limits, and support thresholds. XML depth and element limits have hard ceilings of 256 and 2,000,000; defaults are 128 and 500,000.
 
-- [ ] Write tests for invalid coordinates (`lat` outside `[-90,90]`, `lon` outside `[-180,180]`, NaN, and infinities), zero/negative radii, zero/negative minimum support, zero resource limits, and default settings.
-- [ ] Define stable diagnostic code constants and test that text rendering of each diagnostic contains no source value field.
-- [ ] Implement `make_geo_point`, `make_input_limits`, `make_audit_options`, and `make_redaction_options`; implement default functions; keep record fields immutable unless a specific transformation requires mutation.
-- [ ] Add API facade stubs whose signatures match the contract; run `moon check --deny-warn` and inspect `moon info` output for the exact exported surface.
+- [x] Write tests for invalid geographic coordinates including NaN/infinity, zero/negative/out-of-range radii, zero support, resource limits and caps, defensive copying of redaction category input, and defaults.
+- [x] Define stable diagnostic codes and test that rendering omits a sensitive source path while preserving the stable code and safe message.
+- [x] Implement validated `make_geo_point`, `make_input_limits`, `make_audit_options`, and `make_redaction_options`; add default settings and a `GpxInput` constructor. Readonly MoonBit `pub struct` types prevent construction or mutation from outside their defining package; the redaction constructor snapshots the caller's category array.
+- [x] Re-export model types and validated constructors from `api`; `moon info --package api` and `moon info --package model` generated the intended interfaces. No fake operational API stubs are added; parsing, auditing, and redaction entry points will be introduced with real implementations in later tasks.
+- [ ] `moon test model` (10/10) and `moon test api` (1/1) pass. `moon check --deny-warn` still reports `struct_never_constructed` for result records that later parser/audit/redaction tasks will produce. Re-run warning-denial after those implementations construct the types; do not suppress the diagnostics or add dummy constructors solely to silence them.
 - [ ] Commit: `feat: define TrackShield API and diagnostic model`.
 
-**Acceptance:** public `.mbti` contains only documented API; invalid options produce stable structured errors; API tests pass before parser-backed behavior is added.
+**Acceptance:** generated `.mbti` exposes the intended readonly model and validated constructors; invalid options produce stable structured errors; package tests pass. Full warning-denial is confirmed after the planned producers for each result type are implemented.
 
 ### Task 4: Implement bounded input and XML preflight
 

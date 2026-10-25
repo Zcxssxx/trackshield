@@ -35,6 +35,6 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 
 ## Current gate
 
-- Implementation plan execution is active in the current session. Task 1 (rule/toolchain refresh attempt and module scaffold) is complete with unresolved official-source versions explicitly recorded. Task 2 has a pinned dependency and passing parser compatibility probes; its final warning-denial check waits for the production adapter, while adversarial XML/input tests are assigned to Task 4. Feature implementation has not begun.
+- Implementation plan execution is active in the current session. Task 1 is complete with unresolved official-source requirements explicitly recorded. Task 2 has a pinned dependency and passing parser compatibility probes; its final warning-denial check waits for the production adapter, while adversarial XML/input tests are assigned to Task 4. Task 3 model constructors and API re-exports are implemented and their package tests pass; eight unused-result-record warnings remain until later producers are written.
 - Continue local-only work. Do not configure a GitHub remote, browse authenticated GitHub state, create a repository, push, or claim hosted CI status.
 - The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`.

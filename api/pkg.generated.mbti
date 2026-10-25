@@ -1,0 +1,82 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Zcxssxx/trackshield/api"
+
+import {
+  "Zcxssxx/trackshield/model",
+}
+
+// Values
+pub let code_doctype_forbidden : String
+
+pub let code_gpx_parse_failed : String
+
+pub let code_invalid_latitude : String
+
+pub let code_invalid_limits : String
+
+pub let code_invalid_longitude : String
+
+pub let code_invalid_radius : String
+
+pub let code_invalid_support : String
+
+pub let code_invalid_xml : String
+
+pub let code_unsupported_namespace : String
+
+pub let code_xml_too_deep : String
+
+pub let code_xml_too_many_elements : String
+
+pub fn default_audit_options() -> @model.AuditOptions
+
+pub fn default_input_limits() -> @model.InputLimits
+
+pub fn make_audit_options(Double, Int32, Bool) -> Result[@model.AuditOptions, @model.Diagnostic]
+
+pub fn make_geo_point(Double, Double) -> Result[@model.GeoPoint, @model.Diagnostic]
+
+pub fn make_input_limits(Int32, Int32, Int32, Int32, Int32, Int32) -> Result[@model.InputLimits, @model.Diagnostic]
+
+pub fn make_redaction_options(@model.GeoPoint, Double, Array[@model.MetadataCategory]) -> Result[@model.RedactionOptions, @model.Diagnostic]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @model {type AuditOptions}
+
+pub using @model {type AuditReport}
+
+pub using @model {type Diagnostic}
+
+pub using @model {type EndpointEvidence}
+
+pub using @model {type EndpointKind}
+
+pub using @model {type EndpointObservation}
+
+pub using @model {type FileInspection}
+
+pub using @model {type GeoPoint}
+
+pub using @model {type GpxInput}
+
+pub using @model {type InputLimits}
+
+pub using @model {type MetadataCategory}
+
+pub using @model {type MetadataFinding}
+
+pub using @model {type RedactedFile}
+
+pub using @model {type RedactionOptions}
+
+pub using @model {type RedactionPreview}
+
+pub using @model {type RepeatedLocation}
+
+pub using @model {type Severity}
+
+// Traits
