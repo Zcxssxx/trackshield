@@ -16,6 +16,27 @@ fn record_optional_metadata(
 }
 
 ///|
+/// Record timestamp coverage for every point without retaining its value.
+fn record_timestamp_coverage(
+  findings : Array[@model.MetadataFinding],
+  source_path : String,
+  item_ordinal : Int32,
+  value : String?,
+) -> Unit {
+  findings.push(
+    @model.make_metadata_finding(
+      source_path,
+      @model.MetadataCategory::PointTimestamp,
+      item_ordinal,
+      match value {
+        Some(_) => 1
+        None => 0
+      },
+    ),
+  )
+}
+
+///|
 fn record_extension(
   findings : Array[@model.MetadataFinding],
   source_path : String,
@@ -81,13 +102,7 @@ fn record_waypoint_metadata(
     point_ordinal,
     point.desc,
   )
-  record_optional_metadata(
-    findings,
-    source_path,
-    @model.MetadataCategory::PointTimestamp,
-    point_ordinal,
-    point.time,
-  )
+  record_timestamp_coverage(findings, source_path, point_ordinal, point.time)
   let next_link_ordinal = record_links(
     findings,
     source_path,

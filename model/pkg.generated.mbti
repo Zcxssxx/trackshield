@@ -14,6 +14,8 @@ pub let code_invalid_limits : String
 
 pub let code_invalid_longitude : String
 
+pub let code_invalid_metadata_finding : String
+
 pub let code_invalid_radius : String
 
 pub let code_invalid_support : String

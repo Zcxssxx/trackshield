@@ -29,6 +29,7 @@ pub using @model {
   code_invalid_radius,
   code_invalid_support,
   code_wide_endpoint_component,
+  code_invalid_metadata_finding,
   code_invalid_limits,
   code_file_too_large,
   code_invalid_utf8,

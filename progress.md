@@ -90,3 +90,14 @@
 - Final native verification: `moon fmt --check` passed; ordinary `moon check` passed with exactly two known `struct_never_constructed` warnings for the future redaction outputs; `moon test` passed 62/62; `moon build --target native` passed; `moon info --package audit`, `api`, and `model` exited 0 and refreshed interfaces.
 - `moon test audit --deny-warn`, `moon test --deny-warn`, and `moon test geo --deny-warn` still fail only on the same two future redaction records, `RedactionPreview` and `RedactedFile`; no audit, geometry, or API warning remains.
 - Committed Task 7 locally as `e8c486f feat: find repeated endpoints across GPX collections`. `git log` confirms author and committer are both `Zcxssxx <Zcxssxx@users.noreply.github.com>`. The working tree is clean; `git remote -v` is empty, and no GitHub operation was performed.
+
+## 2026-10-25 inline implementation, Task 8
+
+- Began with failing collection tests for all 14 metadata categories, zero/partial/complete timestamp coverage, distinct file evidence, stable ordering, duplicate source fields, and failed inspections. The existing report was empty for each case; the new aggregation now passes these tests.
+- Metadata findings are normalized to `FileInspection.source_path`, validated for positive ordinals and counts (timestamp coverage uses 0/1 and must be within `point_count`), deduplicated by exact path/category/ordinal, and sorted deterministically. Duplicate identities retain the maximum represented occurrence count rather than adding duplicates.
+- GPX inspection now emits one timestamp coverage fact per parsed waypoint, route point, and track point: count 1 if a timestamp exists and 0 otherwise. No exact timestamp is retained. This lets the report distinguish no timestamps, partial coverage, and full coverage.
+- Invalid metadata facts are omitted with `audit.invalid_metadata_finding`; diagnostics contain no metadata text. Findings from unanalyzed inspections are excluded, while the existing stable parse diagnostics remain.
+- Added integration coverage using the same metadata values in two different GPX files and verified that paths remain distinct. A model-level privacy check confirms that creator/name/author/email/link/timestamp/coordinate values do not enter `MetadataFinding`; JSON serialization checks remain in Task 9.
+- Native verification: `moon fmt --check` passed; ordinary `moon check` passed with only the two known future redaction record warnings; `moon test audit` passed 17/17; `moon test api` passed 14/14; full `moon test` passed 71/71; native build passed; `moon info --package audit`, `api`, and `model` exited 0.
+- `moon test audit --deny-warn` still fails only on unconstructed `RedactionPreview` and `RedactedFile`, reserved for Task 13. No metadata, API, or package warning remains.
+- Task 8 code and verification are complete locally. No GitHub operation or remote configuration has occurred; commit is next.

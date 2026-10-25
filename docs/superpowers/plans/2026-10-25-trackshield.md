@@ -76,7 +76,7 @@ pub enum Severity { Info; Warning; Error }
 pub struct Diagnostic { code: String, severity: Severity, path: String, message: String }
 pub enum MetadataCategory { Creator; MetadataName; MetadataDescription; AuthorName; AuthorEmail; Link; TrackName; TrackDescription; RouteName; RouteDescription; WaypointName; WaypointDescription; PointTimestamp; Extensions }
 pub struct EndpointObservation { source_path: String, track_ordinal: Int, kind: EndpointKind, observation_index: Int, point: GeoPoint }
-pub struct MetadataFinding { source_path: String, category: MetadataCategory, item_ordinal: Int, occurrence_count: Int }
+pub struct MetadataFinding { source_path: String, category: MetadataCategory, item_ordinal: Int, occurrence_count: Int } // PointTimestamp uses 0/1 presence per point; other categories require a positive occurrence count.
 pub struct FileInspection { source_path: String, endpoints: Array[EndpointObservation], metadata_findings: Array[MetadataFinding], diagnostics: Array[Diagnostic], track_count: Int, point_count: Int, analyzed: Bool }
 pub struct AuditOptions { radius_m: Double, min_distinct_files: Int, include_coordinates: Bool }
 pub struct EndpointEvidence { source_path: String, track_ordinal: Int, kind: EndpointKind, observation_index: Int }
@@ -216,15 +216,15 @@ pub fn default_audit_options() -> AuditOptions
 
 ### Task 8: Add safe metadata audit aggregation
 
-**Files:** `audit/metadata.mbt`, `audit/metadata_test.mbt`, `api/api.mbt`.
+**Files:** `audit/metadata.mbt`, `audit/metadata_test.mbt`, `gpx/extract_metadata.mbt`, `api/api.mbt`, `api/api_test.mbt`.
 
 **Interfaces:** Metadata findings are aggregated by stable path/category/item ordinal; values remain absent from the public metadata report.
 
-- [ ] Add tests for every category in `MetadataCategory`, including per-point timestamp coverage with zero, partial, and complete timestamp presence.
-- [ ] Test that identical field values in different files yield separate path evidence and that field text, email, URL, timestamp, and coordinates never appear in the serialized finding.
-- [ ] Test that duplicate entries in `remove_metadata` or category aggregation do not double-count one source field.
-- [ ] Implement deterministic metadata aggregation and stable diagnostic merge. Do not include values even when a parse error occurs.
-- [ ] Run `moon test audit --deny-warn`.
+- [x] Add tests for every category in `MetadataCategory`, including per-point timestamp coverage with zero, partial, and complete timestamp presence.
+- [x] Test that identical field values in different files yield separate path evidence; verify the audit model exposes only path/category/ordinal/count. Serialized text/JSON privacy assertions are in Task 9, where a serializer exists.
+- [x] Test that duplicate entries in category aggregation do not double-count one source field. Duplicate `remove_metadata` selection is checked with the redaction option tests in Task 13.
+- [x] Implement deterministic path/category/ordinal aggregation, per-point timestamp coverage facts, and stable diagnostic merge. Do not include values even when a parse error occurs.
+- [x] Run `moon test audit --deny-warn`; it remains blocked only by the two unconstructed redaction result records until Task 13.
 - [ ] Commit: `feat: report GPX metadata exposure safely`.
 
 **Acceptance:** all spec categories are represented, counts are explicit, order is stable, and sensitive values are not retained in report records.

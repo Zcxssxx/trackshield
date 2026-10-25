@@ -58,10 +58,16 @@ fn inspect_text(
   source : String,
   limits : @api.InputLimits,
 ) -> @api.FileInspection {
-  @api.inspect_gpx(
-    @api.GpxInput::new("runner-42.gpx", test_bytes(source)),
-    limits,
-  )
+  inspect_text_at("runner-42.gpx", source, limits)
+}
+
+///|
+fn inspect_text_at(
+  path : String,
+  source : String,
+  limits : @api.InputLimits,
+) -> @api.FileInspection {
+  @api.inspect_gpx(@api.GpxInput::new(path, test_bytes(source)), limits)
 }
 
 ///|
@@ -172,6 +178,141 @@ test "inspection returns endpoints across empty segments and empty tracks" {
 }
 
 ///|
+test "timestamp coverage records missing and present times per point" {
+  let limits = test_limits(10)
+  let zero = inspect_text_at("zero.gpx", fixture_multiple_tracks(), limits)
+  let partial = inspect_text_at("partial.gpx", fixture_metadata_gpx(), limits)
+  let complete = inspect_text_at(
+    "complete.gpx",
+    (
+      #|<gpx version="1.1" creator="test" xmlns="http://www.topografix.com/GPX/1/1">
+      #|  <trk><trkseg>
+      #|    <trkpt lat="50" lon="60"><time>2026-01-01T00:00:00Z</time></trkpt>
+      #|    <trkpt lat="51" lon="61"><time>2026-01-02T00:00:00Z</time></trkpt>
+      #|  </trkseg></trk>
+      #|</gpx>
+    ),
+    limits,
+  )
+  assert_true(zero.analyzed && partial.analyzed && complete.analyzed)
+  assert_eq(zero.point_count, 3)
+  assert_eq(
+    count_metadata(
+      zero.metadata_findings,
+      @api.MetadataCategory::PointTimestamp,
+    ),
+    0,
+  )
+  assert_eq(count_timestamp_records(zero.metadata_findings), 3)
+  assert_eq(partial.point_count, 3)
+  assert_eq(
+    count_metadata(
+      partial.metadata_findings,
+      @api.MetadataCategory::PointTimestamp,
+    ),
+    2,
+  )
+  assert_eq(count_timestamp_records(partial.metadata_findings), 3)
+  assert_eq(complete.point_count, 2)
+  assert_eq(
+    count_metadata(
+      complete.metadata_findings,
+      @api.MetadataCategory::PointTimestamp,
+    ),
+    2,
+  )
+  assert_eq(count_timestamp_records(complete.metadata_findings), 2)
+
+  let report = @api.audit_collection(
+    [zero, partial, complete],
+    @api.default_audit_options(),
+  )
+  assert_eq(
+    count_metadata_records(
+      report.metadata_findings,
+      @api.MetadataCategory::PointTimestamp,
+    ),
+    8,
+  )
+  assert_eq(
+    count_metadata(
+      report.metadata_findings,
+      @api.MetadataCategory::PointTimestamp,
+    ),
+    4,
+  )
+}
+
+///|
+test "collection metadata findings omit GPX values and exact coordinates" {
+  let inspection = inspect_text_at(
+    "sensitive.gpx",
+    fixture_metadata_gpx(),
+    test_limits(10),
+  )
+  assert_true(inspection.analyzed)
+  let report = @api.audit_collection([inspection], @api.default_audit_options())
+  let mut exposed_text = ""
+  for finding in report.metadata_findings {
+    exposed_text += finding.source_path +
+      ":" +
+      finding.category.to_string() +
+      ":" +
+      finding.item_ordinal.to_string() +
+      ":" +
+      finding.occurrence_count.to_string() +
+      ";"
+  }
+  assert_false(exposed_text.contains("private creator marker"))
+  assert_false(exposed_text.contains("private metadata name"))
+  assert_false(exposed_text.contains("private author"))
+  assert_false(exposed_text.contains("private@example.invalid"))
+  assert_false(exposed_text.contains("https://private.invalid"))
+  assert_false(exposed_text.contains("2026-01-02T00:00:00Z"))
+  assert_false(exposed_text.contains("lat=\"5\" lon=\"6\""))
+}
+
+///|
+test "identical metadata values from different files keep separate evidence" {
+  let first = inspect_text_at("a.gpx", fixture_metadata_gpx(), test_limits(10))
+  let second = inspect_text_at("b.gpx", fixture_metadata_gpx(), test_limits(10))
+  let report = @api.audit_collection(
+    [first, second],
+    @api.default_audit_options(),
+  )
+  let paths : Array[String] = []
+  for finding in report.metadata_findings {
+    if finding.category.to_string() ==
+      @api.MetadataCategory::MetadataName.to_string() &&
+      finding.item_ordinal == 1 {
+      paths.push(finding.source_path)
+    }
+  }
+  assert_eq(paths.length(), 2)
+  assert_eq(paths[0], "a.gpx")
+  assert_eq(paths[1], "b.gpx")
+}
+
+///|
+fn count_timestamp_records(findings : Array[@api.MetadataFinding]) -> Int32 {
+  count_metadata_records(findings, @api.MetadataCategory::PointTimestamp)
+}
+
+///|
+fn count_metadata_records(
+  findings : Array[@api.MetadataFinding],
+  category : @api.MetadataCategory,
+) -> Int32 {
+  let mut count = 0
+  for finding in findings {
+    if finding.category.to_string() == category.to_string() {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
 test "inspection counts metadata categories without copying source values" {
   let inspection = inspect_text(fixture_metadata_gpx(), test_limits(100))
   if !inspection.analyzed {
@@ -267,6 +408,15 @@ test "inspection counts metadata categories without copying source values" {
     ),
     2,
   )
+  let mut missing_timestamp_presence = None
+  for finding in inspection.metadata_findings {
+    if finding.category.to_string() ==
+      @api.MetadataCategory::PointTimestamp.to_string() &&
+      finding.item_ordinal == 2 {
+      missing_timestamp_presence = Some(finding.occurrence_count)
+    }
+  }
+  assert_eq(missing_timestamp_presence, Some(0))
   assert_true(
     has_metadata_ordinal(
       inspection.metadata_findings,

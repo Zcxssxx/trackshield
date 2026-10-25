@@ -165,7 +165,7 @@ pub fn audit_collection(
   }
 
   diagnostics.sort_by(compare_diagnostics)
-  let metadata_findings : Array[@model.MetadataFinding] = []
+  let metadata_findings = aggregate_metadata_findings(inspections, diagnostics)
   @model.make_audit_report(
     options, repeated_locations, metadata_findings, diagnostics,
   )

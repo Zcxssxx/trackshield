@@ -56,7 +56,7 @@ The product describes observations such as “these endpoints from four files fa
 - Count distinct source files and distinct tracks separately so multiple tracks in one input file cannot inflate the distinct-file threshold.
 - Include the source file, track ordinal, endpoint kind, and stable observation index for each finding.
 - Do not include exact coordinates or raw metadata values in default text or JSON reports. An explicit coordinate-output option may reveal the cluster center and is clearly described as sensitive.
-- Metadata checks in v1 cover GPX creator, metadata name/description, author name/email, links, track names/descriptions, route names/descriptions, waypoint names/descriptions, per-point timestamp presence/coverage, and presence of extensions. Findings name the field category and file but do not echo values or exact timestamps by default.
+- Metadata checks in v1 cover GPX creator, metadata name/description, author name/email, links, track names/descriptions, route names/descriptions, waypoint names/descriptions, per-point timestamp presence/coverage, and presence of extensions. Each GPX point has a timestamp coverage fact (`occurrence_count` 1 when a timestamp is present, 0 when absent); findings name the field category and file but do not echo values or exact timestamps by default.
 - Text and JSON formats use stable key ordering and deterministic file ordering.
 
 ### 5.3 Explicit-zone redaction

@@ -116,8 +116,9 @@ pub fn make_endpoint_observation(
 }
 
 ///|
-/// A metadata category occurrence in one source file, without the source value.
-/// Item ordinals start at 1; occurrence_count counts represented occurrences.
+/// A metadata presence or coverage fact in one source file, without its value.
+/// Item ordinals start at 1. For `PointTimestamp`, a count of zero means that
+/// the point has no timestamp; all other categories require a positive count.
 pub struct MetadataFinding {
   source_path : String
   category : MetadataCategory
