@@ -1,11 +1,22 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Zcxssxx/trackshield/cmd/main"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 
 // Errors
 
 // Types and methods
+type BoundedReadError
+
+type CliConfig
+
+type CliOutcome
+
+type ReportFormat derive(Eq, @debug.Debug)
 
 // Type aliases
 
