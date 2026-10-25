@@ -117,26 +117,26 @@ pub fn default_audit_options() -> AuditOptions
 - [x] Run `moon check --deny-warn` on the generated skeleton. Expected: successful check and only intentional generated files. Result: exit 0, “Finished. moon: ran 6 tasks, now up to date”.
 - [x] Run `moon fmt --check`. The first check found noncanonical manifest formatting; `moon fmt` normalized it, and the fresh check returned exit 0.
 - [x] Run `moon run cmd/main` to verify the scaffold entry point executes. Result: exit 0 and output `TrackShield`.
-- [ ] Commit the module skeleton only after the source tree and manifests are self-consistent: `feat: scaffold TrackShield MoonBit module`.
+- [x] Commit the module skeleton only after the source tree and manifests are self-consistent: `feat: scaffold TrackShield MoonBit module` (`c07d23e`).
 
 **Acceptance:** refreshed rules and unknowns are recorded; the local toolchain version is recorded and its latest-stable status is verified or explicitly left pending with evidence; the root remains a local Git repository with no remote; the empty-template probe was inspected and safely removed before adapting the module files.
 
 ### Task 2: Probe GPX/XML dependencies and freeze the adapter boundary
 
-**Files:** `moon.mod`, `moon.pkg`, `gpx/moon.pkg`, `gpx/dependency_probe.mbt`, `gpx/dependency_probe_test.mbt`, `findings.md`.
+**Files:** `moon.mod`, `gpx/moon.pkg`, `gpx/dependency_probe_test.mbt`, `findings.md`.
 
 **Interfaces:** The probe exercises the selected dependency only. The TrackShield adapter boundary remains `inspect_gpx(GpxInput, InputLimits) -> FileInspection` and `redact_gpx(GpxInput, RedactionOptions, InputLimits) -> Result[RedactedFile, Diagnostic]`.
 
-- [ ] Inspect exact Mooncakes release metadata and licenses for `2973181701/moongpx`, its resolved `Milky2018/xml` dependency, and any required native filesystem package. Add only dependencies needed by the user-facing features; record exact versions.
-- [ ] Use `moon ide doc` after dependency addition to inspect parse, model, mutation, and serialization APIs. Record the real type and function names in `findings.md`.
-- [ ] Add minimal authored fixtures for GPX 1.0, GPX 1.1, default namespace, prefixed namespace, extensions, malformed XML, DOCTYPE, and external-entity syntax. Do not use upstream implementation or upstream test data.
-- [ ] Write probe tests that parse and serialize each supported namespace/version fixture, compare semantic fields after round trip, and verify unsupported namespace/extension forms fail or are preserved exactly as claimed.
-- [ ] Add bounded adversarial-input probes for oversized bytes, a deep element tree, a huge text value, an internal entity declaration, an external file entity pointing only to a temporary sentinel, and malformed encodings. Assert rejection and assert the sentinel contents never occur in diagnostics or output.
+- [x] Inspect exact Mooncakes release metadata and licenses for `2973181701/moongpx` and the resolved XML dependency; record the transitive `moonbitlang/x` version. No filesystem package is needed for this pure parser gate.
+- [x] Attempt `moon ide doc` after dependency resolution. The installed tool reports that no core metadata is available for any backend; inspect the exact pinned sources and confirm their APIs with compiled probe tests instead. Record this limitation and the actual function names in `findings.md`.
+- [x] Add authored inline fixtures for GPX 1.0, GPX 1.1 with a default namespace and extension payload, a prefixed root, and malformed XML. No upstream fixtures or implementation were copied. DOCTYPE/entity and byte/encoding cases are moved to the TrackShield-owned preflight tests in Task 4.
+- [x] Write probe tests for GPX 1.0/1.1 parsing, default-namespace semantic round trip including extension data, prefixed-name rejection, and malformed XML rejection.
+- [ ] Add bounded adversarial-input tests for oversized bytes, a deep element tree, huge text, DOCTYPE/internal/external-entity syntax, malformed encodings, and a temporary sentinel. These belong at the TrackShield preflight boundary in Task 4 so unsafe bytes never reach the dependency parser.
 - [ ] If the dependency cannot meet the spec, document the observed gap and test an alternative adapter or implement a narrow TrackShield-owned XML boundary; do not silently weaken the safety or preservation claims.
-- [ ] Lock the dependency decision and actual adapter type mapping in `findings.md` and this plan before proceeding. Run `moon test gpx --deny-warn` and `moon check --deny-warn`.
-- [ ] Commit only the verified dependency boundary and authored probes: `test: establish GPX parser compatibility gate`.
+- [ ] Lock the dependency decision and TrackShield-owned adapter mapping in `findings.md` and this plan. `moon test gpx` currently passes 4/4, but emits `unused_package` because the package dependency is consumed only in test files; rerun `moon test gpx --deny-warn` and `moon check --deny-warn` once the production adapter in Task 5 consumes it.
+- [ ] Commit the compatibility findings and authored probes: `test: establish GPX parser compatibility gate`.
 
-**Acceptance:** the supported XML namespace, extension round-trip, size behavior, DOCTYPE handling, and serializer guarantees are backed by runnable project tests against the exact resolved dependency.
+**Acceptance:** the exact dependency and supported namespace/version/extension behavior are recorded and backed by passing authored tests. Task 4 must establish the input-safety boundary before Task 5 calls the parser. Compiler warning-denial is verified after the production adapter consumes the pinned dependency.
 
 ### Task 3: Define public domain models, diagnostics, and validated options
 
@@ -156,11 +156,11 @@ pub fn default_audit_options() -> AuditOptions
 
 **Files:** `xmlguard/moon.pkg`, `xmlguard/limits.mbt`, `xmlguard/xml_lex.mbt`, `xmlguard/xmlguard_test.mbt`, `api/api.mbt`.
 
-**Interfaces:** Internal `validate_input(path: String, bytes: Bytes, limits: InputLimits) -> Array[Diagnostic]`; internal `reject_doctype(bytes: Bytes) -> Bool`. Wire the checks into `inspect_gpx`, preview, and redaction before invoking the GPX parser.
+**Interfaces:** Internal `validate_input(path: String, bytes: Bytes, limits: InputLimits) -> Array[Diagnostic]`; internal `preflight_xml(bytes: Bytes, max_depth: Int, max_elements: Int) -> Result[Unit, Diagnostic]`. The preflight rejects DOCTYPE, malformed markup, nesting beyond the documented hard cap, and excessive element counts before any GPX model is allocated. Wire the checks into inspection, preview, and redaction before invoking the GPX parser.
 
 - [ ] Test byte limits at `max_file_bytes - 1`, exactly the limit, and one byte over; verify the parser is not called for the over-limit case.
-- [ ] Test lexical handling of actual `<!DOCTYPE ...>` in case-insensitive forms, comments containing the same text, CDATA containing the text, quoted attribute content, UTF-8 BOM, malformed UTF-8, and processing instructions.
-- [ ] Implement a bounded prolog scanner that distinguishes markup from comments/CDATA/quoted text, with a maximum scan bounded by the configured byte limit. It must reject a real DOCTYPE before GPX parsing and must not reject harmless lookalikes in comments or CDATA.
+- [ ] Test lexical handling of actual `<!DOCTYPE ...>` declarations, comments containing the same text, CDATA containing the text, quoted attribute content, UTF-8 BOM, malformed UTF-8, and processing instructions. Reject prefixed GPX element names with a stable diagnostic before the dependency parser.
+- [ ] Implement a bounded XML tokenizer that distinguishes markup from comments/CDATA/quoted text, scans at most the configured file limit, rejects real DOCTYPE, and enforces the XML depth and element-count caps before GPX parsing.
 - [ ] Run `moon test xmlguard --deny-warn` and `moon check --deny-warn`.
 - [ ] Commit: `feat: reject unsafe and oversized GPX input`.
 
