@@ -332,12 +332,12 @@ pub fn default_audit_options() -> AuditOptions
 
 **Interfaces:** Documentation commands must match the actual executable help, option names, exit codes, and supported target matrix.
 
-- [ ] Add a self-contained synthetic collection of three GPX files with endpoints that make one documented cluster; include no real routes or coordinates.
-- [ ] Document install/build/run/test commands, audit examples in text and JSON, redaction preview, explicit write flow, metadata category names, limits, unsupported namespace/extension behavior, and the distinction between clues and privacy guarantees.
-- [ ] Document that reports, paths, and cleaned GPX exports may still contain sensitive information and should be handled accordingly.
-- [ ] Record each direct and transitive dependency name, exact version, upstream URL, license, bundled/copy status, and attribution obligations. Record test fixture origin and license; state clearly that authored fixtures are synthetic and original.
-- [ ] Add an OSI-approved root license after verifying the selected SPDX identifier and include any required dependency notices without implying dependency ownership.
-- [ ] Execute every README shell command on the actual project and fix any mismatch before commit.
+- [x] Add a self-contained synthetic collection of three GPX files with endpoints that make one documented cluster; include no real routes or coordinates.
+- [x] Document install/build/run/test commands, audit examples in text and JSON, redaction preview, explicit write flow, metadata category names, limits, unsupported namespace/extension behavior, and the distinction between clues and privacy guarantees.
+- [x] Document that reports, paths, and cleaned GPX exports may still contain sensitive information and should be handled accordingly.
+- [x] Record each direct and transitive dependency name, exact version, upstream URL, license, bundled/copy status, and attribution obligations. Record test fixture origin and license; state clearly that authored fixtures are synthetic and original.
+- [x] Add an OSI-approved root license after verifying the selected SPDX identifier and include any required dependency notices without implying dependency ownership.
+- [x] Execute every README shell command on the actual project and fix any mismatch before commit.
 - [ ] Commit meaningful documentation/provenance changes: `docs: document TrackShield workflows and provenance`.
 
 **Acceptance:** a reviewer can build and run every documented example locally, understand limitations, and trace every non-original dependency and fixture.

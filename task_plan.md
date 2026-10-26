@@ -10,7 +10,8 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 - [x] Product design approved in chat.
 - [x] Save and self-review the written design specification; user approved it on 2026-10-25.
 - [x] Write and self-review the implementation plan; user selected inline execution on 2026-10-25.
-- [ ] Implement library, CLI, tests, examples, documentation, license, provenance, and CI.
+- [x] Implement the MoonBit library and CLI, core tests, synthetic collections, documentation, license, and dependency provenance.
+- [ ] Configure a local MoonBit CI workflow.
 - [ ] Verify with the current MoonBit stable toolchain and supported targets.
 - [ ] Complete local submission-readiness review.
 - [ ] Only after local completion, check the active GitHub identity and perform explicitly authorized remote work.
@@ -35,6 +36,6 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 
 ## Current gate
 
-- Implementation plan execution is active in the current session on `codex/trackshield-development`. Task 14 (adversarial, compatibility, and regression tests) is implemented, verified, and independently reviewed. New fixtures cover exactly one qualifying three-file cluster and a two-file below-threshold collection; a coordinate property test checks all retained point classes. Full strict suite passes 142/142; formatting, strict check, native build, `moon info`, and `git diff --check` pass. Review disposition and evidence are in `.superpowers/sdd/task-14-report.md`. Continue with Task 15. A dependency-owned Windows C4005 `EINVAL` warning remains documented.
+- Implementation plan execution is active in the current session on `codex/trackshield-development`. Tasks 1–15 are implemented; Task 15 adds usage/API docs, original synthetic examples, an OSI-approved root license, and exact direct/transitive dependency provenance. Its docs review findings were corrected and re-reviewed. All README shell commands were run; audit examples report one start cluster, redaction preview/write returned the documented point and metadata counts, and generated output was removed after verification. Full strict suite passes 142/142; `moon fmt --check`, `moon check --deny-warn`, native strict build, `moon info`, and `git diff --check` pass. Detailed evidence is in `.superpowers/sdd/task-15-report.md`. The upstream async Windows C4005 `EINVAL` warning remains unsuppressed. Continue with Task 16.
 - Continue local-only work. Do not configure a GitHub remote, browse authenticated GitHub state, create a repository, push, or claim hosted CI status.
-- The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`.
+- The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`. The official newest stable version is still to be reconciled against the installed `moon 0.1.20261023` / `moonc v0.10.17+d971670cd` before CI pins it.
