@@ -66,8 +66,8 @@ The local portable-target commands cover the reusable library packages only. A p
 ## Repository and provenance audit
 
 - Local branch: `codex/trackshield-development`. Local `main` exists but points to an older commit; without a hosted repository there is no verifiable remote default branch.
-- No Git remote is configured. No GitHub account, repository, push, hosted CI or application submission was accessed or performed during this local stage.
-- The 27 development commits preceding this report are non-empty development/documentation changes; all recorded author and committer identities are `Zcxssxx <Zcxssxx@users.noreply.github.com>`. The Task 17 record adds one further substantive commit.
+- No Git remote is configured. After local completion, the sole GitHub call used the login-only identity endpoint; it returned `[redacted login]`, which does not match the required `Zcxssxx`. No repository was queried. No credentials, tokens, historical accounts, or other account data were requested or displayed. Repository creation, push, hosted CI and application submission remain gated until the active login matches.
+- The 27 development commits preceding Task 17 are non-empty development/documentation changes; the local-readiness report and subsequent identity-gate status add two more substantive commits, for 29 total. All recorded author and committer identities are `Zcxssxx <Zcxssxx@users.noreply.github.com>`.
 - Exact prescribed source-count command over tracked `.mbt` files: 41 files, 4,979 production lines, 3,845 test lines, 8,824 total. This exceeds the user's 3,000-line quality target without padding.
 - Root `LICENSE` is Apache-2.0, an OSI-approved license. `THIRD_PARTY_NOTICES.md` records exact dependencies, versions, source URLs, licenses, and authored fixture provenance. No third-party code or test fixtures were copied.
 - The CI file is `.github/workflows/test.yml`; YAML parsed locally with PyYAML 6.0.2, but no GitHub schema validation or hosted run occurred.

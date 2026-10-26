@@ -22,7 +22,7 @@ Checked on 2026-10-26 against the [official October 2026 landing page](https://m
 
 - More than 3,000 meaningful MoonBit source lines without padding, a traceable history with more than ten substantive commits, strict warning-denying checks/tests, reusable APIs, examples, privacy/safety boundaries, and a local CI definition.
 - Apache-2.0 at the repository root and documented dependencies/data provenance.
-- TrackShield currently exceeds the size/history goals: 4,979 production lines plus 3,845 test lines across 41 tracked `.mbt` files, and 28 local commits including this readiness record.
+- TrackShield currently exceeds the size/history goals: 4,979 production lines plus 3,845 test lines across 41 tracked `.mbt` files, and 29 local commits including the final local-readiness and identity-gate records.
 
 ## Pending confirmation
 
