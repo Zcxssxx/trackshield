@@ -12,7 +12,7 @@ moonc v0.10.17+d971670cd (2026-10-23)
 moonrun 0.1.20261023
 ```
 
-The installed command's `moon upgrade --help` states that `--dev` installs the latest development version. On 2026-10-26, `moon upgrade` without `--dev` completed successfully through the default stable channel. It installed to `C:\Users\gunter\.moon`; a subsequent `moon version --all` still reported `moon 0.1.20261023`, `moonc v0.10.17+d971670cd`, and `moonrun 0.1.20261023`. The default stable updater therefore resolved to v0.10.17 on this host. The CI workflow now invokes the official installer with no channel override and prints the resolved version. The official [MoonBit updates index](https://www.moonbitlang.com/updates) still lists [v0.10.14, dated 2026-09-21](https://www.moonbitlang.com/updates/2026/09/21/index) as its latest monthly announcement; this lag is recorded rather than used to downgrade the working default stable channel. The Hackathon-specific toolchain clause remains `待确认` because its formal charter was inaccessible, and hosted CI remains unverified.
+The installed command's `moon upgrade --help` states that `--dev` installs the latest development version. On 2026-10-26, `moon upgrade` without `--dev` completed successfully through the default stable channel. It installed to `C:\Users\gunter\.moon`; a subsequent `moon version --all` still reported `moon 0.1.20261023`, `moonc v0.10.17+d971670cd`, and `moonrun 0.1.20261023`. The default stable updater therefore resolved to v0.10.17 on this host. The CI workflow now invokes the official installer with no channel override and prints the resolved version. The official [MoonBit updates index](https://www.moonbitlang.com/updates) still lists [v0.10.14, dated 2026-09-21](https://www.moonbitlang.com/updates/2026/09/21/index) as its latest monthly announcement; this lag is recorded rather than used to downgrade the working default stable channel. The Hackathon-specific toolchain clause remains `待确认` because its formal charter was inaccessible. Hosted CI was subsequently verified: all four jobs passed on implementation commit `6fda488`.
 
 The upgrader warned that the command is highly experimental and emitted a non-fatal PowerShell `Set-ExecutionPolicy` module-loading diagnostic. It nevertheless exited 0, printed “Moonbit installed successfully,” and completed the post-upgrade version check. The repeated version output and successful project matrix are the verification evidence; the installer warning was not hidden.
 
@@ -20,14 +20,16 @@ The current [October Hackathon landing page](https://moonbitlang.github.io/Hacka
 
 ## Fresh local verification
 
-All commands below were run from the project root after commit `7e8d7dc` and before this report commit. Native commands used `--deny-warn`; `moon info` intentionally did not use a warning-denial flag.
+The fresh CI-equivalent commands below were run from the project root after implementation commit `6fda488`. Native commands used `--deny-warn`; `moon info` intentionally did not use a warning-denial flag.
 
 | Command | Exit | Result |
 | --- | ---: | --- |
 | `moon version --all` after default stable-channel `moon upgrade` | 0 | `moon 0.1.20261023`; `moonc v0.10.17+d971670cd`; `moonrun 0.1.20261023` |
+| `moon update` | 0 | Registry index and symbols updated; clean-runner dependency resolution now succeeds |
 | `moon upgrade` (default stable channel; no `--dev`) | 0 | Installed successfully; same resolved versions before and after |
 | `moon fmt --check` | 0 | No formatting work required |
-| `moon check --target native --deny-warn` | 0 | 33 tasks up to date |
+| `moon check --target native --deny-warn` | 0 | Passed |
+| `moon tree --json` | 0 | Resolved dependency graph emitted (963 bytes) |
 | `moon test --target native --deny-warn` | 0 | 142/142 passed |
 | `moon build --target native --deny-warn` | 0 | Native CLI artifact built |
 | `moon check --target wasm --deny-warn --no-mbti api audit geo gpx internal/xmlguard model redact report` | 0 | Passed |
@@ -60,18 +62,24 @@ The local portable-target commands cover the reusable library packages only. A p
 | Split tracks, routes/waypoints, metadata selection and opaque extensions | Pass with conservative refusal | Tests cover retained runs/removal; ambiguous opaque ownership is diagnosed instead of guessed |
 | Malformed XML, DTD, encoding, namespace and resource limits | Partial | Deterministic diagnostics and adversarial tests; ACL-denied filesystem behavior not directly exercised |
 | Native CLI and portable library packages | Pass | Fresh commands above; CLI remains native-only because of async filesystem target support |
-| CI and stable-toolchain requirement | Partial / pending external evidence | Local default stable channel and workflow installer align; local workflow syntax and commands were verified; no hosted CI or exact Hackathon toolchain clause has been confirmed |
+| CI and stable-toolchain requirement | CI verified; event clause pending | GitHub Actions passed native and wasm/wasm-gc/js library jobs on `6fda488`; exact Hackathon toolchain wording remains `待确认` |
 | README, reproducible examples, license and provenance | Pass | All documented examples run; root Apache-2.0; dependency and synthetic-data sources documented |
+
+## Hosted CI investigation and result
+
+The first push run, [40270006679](https://github.com/Zcxssxx/trackshield/actions/runs/40270006679), failed at the first dependency-resolving checks. Its logs reported that the registry could not find `2973181701/moongpx`, `Milky2018/xml`, and `moonbitlang/async`, and suggested refreshing the registry index. Running `moon update` locally succeeded; all pinned packages then resolved and passed strict checks. The workflow now runs `moon update` after printing toolchain versions in both the native and portable-library jobs.
+
+After that change, [run 40270296086](https://github.com/Zcxssxx/trackshield/actions/runs/40270296086) completed successfully on `6fda4885473c00034028c0556d0717a6dc24403e`. All steps passed in four jobs: native CLI/full suite, portable library on wasm, wasm-gc, and js. The run also executed `moon info` and confirmed a clean checkout. The only annotations were GitHub runner notices about the Node.js 20 deprecation warning for `actions/checkout@v4` and the scheduled `ubuntu-latest` migration to Ubuntu 26; neither failed a job.
 
 ## Repository and provenance audit
 
-- Local branch: `codex/trackshield-development`. Local `main` exists but points to an older commit; without a hosted repository there is no verifiable remote default branch.
-- No Git remote is configured. After local completion, the sole GitHub call used the login-only identity endpoint; it returned `[redacted login]`, which does not match the required `Zcxssxx`. No repository was queried. No credentials, tokens, historical accounts, or other account data were requested or displayed. Repository creation, push, hosted CI and application submission remain gated until the active login matches.
-- The 27 development commits preceding Task 17 are non-empty development/documentation changes; the local-readiness report and subsequent identity-gate status add two more substantive commits, for 29 total. All recorded author and committer identities are `Zcxssxx <Zcxssxx@users.noreply.github.com>`.
-- Exact prescribed source-count command over tracked `.mbt` files: 41 files, 4,979 production lines, 3,845 test lines, 8,824 total. This exceeds the user's 3,000-line quality target without padding.
+- The verified active GitHub CLI login was `Zcxssxx`; no historical identities, credentials, or tokens were read. The target [public repository](https://github.com/Zcxssxx/trackshield) uses default branch `main`.
+- At implementation verification, local and remote `main` both resolved to `6fda4885473c00034028c0556d0717a6dc24403e`. GitHub's recursive tree returned 123 entries with `truncated=false`. The remote blob IDs matched local objects for `README.md`, `LICENSE`, `THIRD_PARTY_NOTICES.md`, `moon.mod`, `.github/workflows/test.yml`, `progress.md`, and `task_plan.md`.
+- GitHub's commits endpoint returned 30 commits, all with author name `Zcxssxx`. The contributors endpoint returned `Zcxssxx:29` at the same query time. This API count difference is reported as observed; the commit endpoint is the source used for the 30-commit total. The documented status update adds one substantive release-record commit.
+- Exact source counting by tracked `.mbt` files with `test` in their path/name classified as tests reports 41 files: 4,979 implementation lines and 3,845 test lines, 8,824 total. This exceeds the 3,000-line quality target without padding.
 - Root `LICENSE` is Apache-2.0, an OSI-approved license. `THIRD_PARTY_NOTICES.md` records exact dependencies, versions, source URLs, licenses, and authored fixture provenance. No third-party code or test fixtures were copied.
-- The CI file is `.github/workflows/test.yml`; YAML parsed locally with PyYAML 6.0.2, but no GitHub schema validation or hosted run occurred.
+- The CI file is `.github/workflows/test.yml`; GitHub Actions verified it with the latest stable installer output and all four jobs passing on the implementation SHA.
 
-## Overall local status
+## Overall status
 
-The project implementation, local checks, examples, and review materials are complete. The default stable toolchain channel and supported local targets are verified. External confirmation remains pending for the charter/supplement; the actual GitHub repository, its default branch/contributors, hosted CI, and final application submission have not been performed during this local stage. Those are recorded as pending rather than inferred or presented as complete.
+The implementation, local verification, public repository, remote tree and default branch, source and license records, and hosted CI result are verified as described above. The event landing page provides a 2026-10-31 deadline but no exact time zone/cutoff. The formal charter and supplement remain inaccessible; their precise clauses stay `待确认`. The application draft is prepared locally and has not been submitted. Mooncakes publication has not been performed.

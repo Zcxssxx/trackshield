@@ -22,14 +22,14 @@ Checked on 2026-10-26 against the [official October 2026 landing page](https://m
 
 - More than 3,000 meaningful MoonBit source lines without padding, a traceable history with more than ten substantive commits, strict warning-denying checks/tests, reusable APIs, examples, privacy/safety boundaries, and a local CI definition.
 - Apache-2.0 at the repository root and documented dependencies/data provenance.
-- TrackShield currently exceeds the size/history goals: 4,979 production lines plus 3,845 test lines across 41 tracked `.mbt` files, and 29 local commits including the final local-readiness and identity-gate records.
+- TrackShield currently exceeds the size/history goals: 4,979 implementation lines plus 3,845 test lines across 41 tracked `.mbt` files, and 31 meaningful commits after this remote-verification record is included.
 
 ## Pending confirmation
 
 - The [formal charter](https://bxup9uklfcb.feishu.cn/wiki/Dx4Bwd6D1i3GfHkajQCcF7SznEd) and [supplemental event page](https://bxup9uklfcb.feishu.cn/wiki/KNrVwEVFziPHiGkQtwhc6w3gndd) could not be retrieved. Their update timestamps, exact submission materials and fields, review and revision rules, exact license clauses, Mooncakes publication, CI, and toolchain-version requirements are `待确认`.
 - The landing-page deadline's exact time and time zone are `待确认`.
 - The default `moon upgrade` channel (without `--dev`) completed successfully on 2026-10-26 and resolved to `moonc v0.10.17+d971670cd` (2026-10-23); the `--dev` option is specifically for the development toolchain. The official [updates page](https://www.moonbitlang.com/updates) lists v0.10.14 (2026-09-21) as its newest monthly announcement, so that index is behind the installer channel. Project CI uses the official installer default channel and prints the version it resolves. The Hackathon's own toolchain clause remains `待确认`.
-- No event application has been submitted. No public repository, public default branch, hosted CI result, or Mooncakes publication is claimed.
+- No event application has been submitted. The public repository is [Zcxssxx/trackshield](https://github.com/Zcxssxx/trackshield), with default branch `main`. GitHub Actions passed four jobs on implementation commit `6fda488`; Mooncakes publication has not been performed.
 
 ## One-page project description draft
 
@@ -39,8 +39,8 @@ TrackShield is a local-first MoonBit command-line tool and reusable library for 
 
 The `audit` command reads GPX 1.0/1.1 files without network access, checks repeated track endpoints across distinct files, and reports a documented set of metadata categories. Text and JSON output are deterministic and omit exact centers and raw values by default. The `redact` command accepts only a user-entered center and radius. It previews first; writing requires explicit confirmation and a new output directory. It revalidates outputs and refuses transformations where opaque content cannot be assigned safely.
 
-The project is implemented primarily in MoonBit. It has a native CLI and a reusable library whose analysis packages build and test on native, wasm, wasm-gc, and JavaScript targets. On the current local toolchain, strict native tests pass 142/142; portable-library tests pass 113/113 on each non-native target. The checked-in three-file GPX example is synthetic and demonstrates a repeated-start finding. Root license: Apache-2.0. Dependency versions and provenance are documented in `THIRD_PARTY_NOTICES.md`.
+The project is implemented primarily in MoonBit. It has a native CLI and a reusable library whose analysis packages build and test on native, wasm, wasm-gc, and JavaScript targets. On the current stable toolchain, strict native tests pass 142/142; portable-library tests pass 113/113 on each non-native target. GitHub Actions passed the corresponding native and three portable-library jobs on commit `6fda488`. The checked-in three-file GPX example is synthetic and demonstrates a repeated-start finding. Root license: Apache-2.0. Dependency versions and provenance are documented in `THIRD_PARTY_NOTICES.md`.
 
 AI assistance disclosure: Codex assisted with planning, implementation, tests, and documentation. The participant selected the project and constraints, reviewed design decisions, and is responsible for understanding and validating the submitted work.
 
-Application fields not yet filled: participant/team details, public repository URL, actual form-specific fields, and the organizer's required one-page file format. This draft is prepared locally and has not been submitted.
+Application fields not yet filled: participant/team details, actual form-specific fields, and the organizer's required one-page file format. Public repository URL: https://github.com/Zcxssxx/trackshield. This draft is prepared locally and has not been submitted.
