@@ -1,5 +1,15 @@
 # Progress
 
+## 2026-10-26 inline implementation, Task 13
+
+- Added `trackshield redact` with explicit latitude/longitude and radius, optional metadata categories, preview-only default, and `--write --output-dir` confirmation. The implementation reuses bounded GPX discovery/reading, resolves aliases, rejects unsafe path spellings, case-insensitive basename collisions, static symlink/reparse traversal, existing destinations, and input/output overlap before output creation.
+- Writes stage candidate bytes in a newly created sibling directory, sync them, reopen and parse them through the hardened adapter, then publish each file with exclusive creation. The pinned filesystem implementation does not provide the required portable same-volume atomic rename guarantee, so docs explain partial publication, sensitive leftovers, manual recovery, and the trusted/stable directory-tree requirement. Original files are never overwritten.
+- Added 18 focused CLI tests covering preview side effects, CLI validation, empty/missing inputs, alias deduplication and sibling paths, collisions, mixed invalid inputs/private diagnostics, input/output overlap, links/reparse points, byte budgets, candidate validation, exclusive creation, staging cleanup ownership, and Unicode diagnostic line separators.
+- Task 13 review found no Critical/Important issue. A Minor line-splitting issue for U+0085/U+2028/U+2029 was reproduced with a failing regression, fixed, and re-reviewed as resolved.
+- Fresh post-fix verification: focused `moon test cmd/main --filter 'redact*' --deny-warn` passed 18/18; full `moon test --deny-warn` passed 140/140; `moon fmt --check`, `moon check --deny-warn`, `moon build --target native --deny-warn`, `moon info`, and `git diff --check` exited 0. A PowerShell process-level smoke test passed preview/no-side-effect, three-file write, reparse/audit, existing-destination rejection (product exit 2), cleanup, and source byte-equality assertions. The smoke wrapper itself exited 0.
+- `moon version --all`: moon/moonrun `0.1.20261023`, moonc `0.10.17+d971670cd` (2026-10-23). Comparison with an authoritative official latest-stable release remains pending from Task 1/17. Clean native C compilation printed upstream `moonbitlang/async` warning C4005 for `EINVAL`; no MoonBit strict diagnostics occurred.
+- Local feature commit `d026f48 feat: add preview-first redaction CLI`; author and committer are `Zcxssxx <Zcxssxx@users.noreply.github.com>`. Continue with Task 14. No GitHub identity, remote, hosted CI, or GitHub operation was accessed.
+
 ## 2026-10-25
 
 - User selected TrackShield after RSS/Atom was excluded by direct Mooncakes overlap.

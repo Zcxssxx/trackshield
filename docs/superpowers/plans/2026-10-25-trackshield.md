@@ -295,17 +295,17 @@ pub fn default_audit_options() -> AuditOptions
 
 ### Task 13: Add safe filesystem writes and redaction CLI
 
-**Files:** `cmd/main/redact_command.mbt`, `cmd/main/safe_output.mbt`, `cmd/main/redact_cli_test.mbt`, `README.md`, `docs/formats-and-limits.md`.
+**Files:** `cmd/main/redact_command.mbt`, `cmd/main/safe_output.mbt`, `cmd/main/redact_cli_wbtest.mbt`, `README.md`, `docs/formats-and-limits.md`.
 
 **Interfaces:** `trackshield redact <path>... --center LAT,LON --radius-m N [--remove-metadata CATEGORY,...] [--write --output-dir DIR]`. Without `--write`, the command previews only. With `--write`, every destination path is new and is re-parsed before final publication.
 
-- [ ] Test preview mode creates no directory or file; `--write` without `--output-dir`, with existing output dir, with output equal to an input directory, and with output nested under input directory all fail before writing. Test duplicate basenames from separate input directories; reject colliding derived destinations before writing.
-- [ ] Test a destination with one valid and one invalid input: failed files are not published as successful outputs and the summary names each diagnostic without leaking source values.
-- [ ] Implement path canonicalization and containment checks using confirmed filesystem APIs. Reject symlink/reparse traversal and any destination overlap with inputs.
-- [ ] Write to a newly created staging sibling directory, flush and close all files, re-open and re-parse each staged GPX, then rename the staging directory to the requested previously nonexistent destination if the platform API guarantees the operation. If that guarantee is unavailable, use per-file exclusive creation and document partial-write cleanup behavior; never overwrite an existing path.
-- [ ] Print exact counts and output paths, with a reminder that cleaned files and reports remain sensitive. Exit 0 for successful preview/write and 2 for usage, path, destination, or I/O errors.
-- [ ] Run preview and write examples in temporary directories and compare original file bytes before and after; expected: originals byte-identical.
-- [ ] Commit: `feat: add preview-first redaction CLI`.
+- [x] Test preview mode creates no directory or file; `--write` without `--output-dir`, with existing output dir, with output equal to an input directory, and with output nested under input directory all fail before writing. Test duplicate basenames from separate input directories; reject colliding derived destinations before writing. Focused CLI suite: 18/18, including staging ownership and Unicode diagnostic line-separator regressions.
+- [x] Test a destination with one valid and one invalid input: failed files are not published as successful outputs and the summary names each diagnostic without leaking source values.
+- [x] Implement path canonicalization and containment checks using confirmed filesystem APIs. Reject static symlink/reparse traversal and any destination overlap with inputs. Concurrent hostile parent replacement remains unsupported because path APIs do not provide a handle-relative no-follow boundary; the trusted-tree limit is documented.
+- [x] Write to a newly created staging sibling directory, sync and close all files, re-open and re-parse each staged GPX, then publish by per-file exclusive creation. The Windows rename API has a copy fallback and does not guarantee same-volume atomic publication on all supported systems, so partial publication recovery is documented; existing paths are never overwritten.
+- [x] Print exact counts and output paths, with a reminder that cleaned files and reports remain sensitive. Exit 0 for successful preview/write and 2 for usage, path, destination, or I/O errors.
+- [x] Run preview and write examples in temporary directories and compare original file bytes before and after; expected: originals byte-identical. Native smoke assertions passed for preview, three outputs, independent reparse/audit, repeat-destination rejection, cleanup, and unchanged source bytes.
+- [x] Commit: `feat: add preview-first redaction CLI` (`d026f48`). Independent review found no Critical/Important issue; a Minor Unicode line-separator diagnostic issue was reproduced RED/GREEN and re-reviewed as resolved.
 
 **Acceptance:** preview has no side effects, write requires explicit confirmation, collisions and input/output overlap are rejected, and generated files are validated before publication.
 

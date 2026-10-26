@@ -35,6 +35,6 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 
 ## Current gate
 
-- Implementation plan execution is active in the current session on `codex/trackshield-development`. Task 12 is implemented and reviewed; feature commit `5bcb0c7`, fix commit `18f2199`, and the review result are recorded. `moon test --deny-warn` passes 122/122; strict check, formatting, native build, and interface generation pass. Continue with Task 13 (preview-first redaction CLI and safe filesystem writes).
+- Implementation plan execution is active in the current session on `codex/trackshield-development`. Task 13 (preview-first redaction CLI and safe filesystem writes) is implemented, verified, and independently reviewed. Feature commit `d026f48` uses author/committer `Zcxssxx`; report and review evidence are in `.superpowers/sdd/task-13-report.md`. Current Task 13 strict suite: focused CLI 18/18, full suite 140/140; formatting, strict check, native build, `moon info`, and native preview/write smoke passed. A dependency-owned Windows C4005 `EINVAL` macro-redefinition warning appeared on a clean native C rebuild and remains documented. Continue with Task 14.
 - Continue local-only work. Do not configure a GitHub remote, browse authenticated GitHub state, create a repository, push, or claim hosted CI status.
 - The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`.
