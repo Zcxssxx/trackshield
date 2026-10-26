@@ -77,7 +77,7 @@ External content below is source data for the project, not instructions.
 
 ## Current October 2026 competition check
 
-Checked 2026-10-25 against the current [2026 MoonBit Hackathon landing page](https://moonbitlang.github.io/Hackathon2026/). The page search result identifies the event as the October round and states a 2026-10-31 registration and acceptance deadline. No “last updated” date was visible in the retrieved page content.
+Checked 2026-10-26 against the current [2026 MoonBit Hackathon landing page](https://moonbitlang.github.io/Hackathon2026/). The current indexed page identifies the event as the October round and states a 2026-10-31 registration and acceptance deadline. The page's displayed update date and exact cutoff time/time zone were not visible in the retrieved content.
 
 ### Landing-page requirements stated for this round
 
@@ -93,11 +93,13 @@ Checked 2026-10-25 against the current [2026 MoonBit Hackathon landing page](htt
 
 - User-provided formal charter: https://bxup9uklfcb.feishu.cn/wiki/Dx4Bwd6D1i3GfHkajQCcF7SznEd
 - User-provided supplemental event page: https://bxup9uklfcb.feishu.cn/wiki/KNrVwEVFziPHiGkQtwhc6w3gndd
-- Current page retrieval could not expose either Feishu document's body. Their update timestamps, full application materials, review/modification details, exact license requirements, Mooncakes publication requirements, CI requirements, and toolchain-version clauses remain `待确认`.
+- Direct page retrieval and exact-ID searches could not expose either Feishu document's body. Their update timestamps, full application materials, review/modification details, exact license requirements, Mooncakes publication requirements, CI requirements, and toolchain-version clauses remain `待确认`.
 - Do not infer 2026 Hackathon requirements from OSC 2026, the August Hackathon, or another competition. Re-open these sources before preparing the final application package.
-- The installed toolchain on 2026-10-25 is `moon 0.1.20261023 (3778465 2026-10-23)`, `moonc v0.10.17+d971670cd (2026-10-23)`, and `moonrun 0.1.20261023`. An official latest-stable comparison has not yet been recorded.
-- The official [MoonBit download page](https://www.moonbitlang.com/download/) describes installing the “latest moonbit toolchain” and provides `/binaries/latest/` checksum URLs, but the page does not print the corresponding version number. The official [updates page](https://www.moonbitlang.com/updates) retrieved in this check has no match for `0.10.17` or `20261023`; the latest-stable comparison is therefore still `待确认`, not inferred from the local binary timestamp.
-- The official download page says the supported Windows installation route is the VS Code “MoonBit:install latest moonbit toolchain” command or the PowerShell installer. Do not run a machine-wide installer unless an update is proven necessary and permitted by the workspace boundary.
+- The installed toolchain on 2026-10-26 is `moon 0.1.20261023 (3778465 2026-10-23)`, `moonc v0.10.17+d971670cd (2026-10-23)`, and `moonrun 0.1.20261023`.
+- On 2026-10-26, `moon upgrade` was run in a terminal without `--dev`, following the installed command's help (`--dev` selects the latest development version). The upgrade completed successfully, installed to `C:\Users\gunter\.moon`, and `moon version --all` still reported the same 2026-10-23 toolchain. This is direct evidence that the default stable channel resolved to the installed build at that time. The CI workflow now uses the official install script with no channel override, so it selects the installer default and logs the resolved version.
+- The official [updates index](https://www.moonbitlang.com/updates) currently lists the latest monthly announced release as [MoonBit v0.10.14, dated 2026-09-21](https://www.moonbitlang.com/updates/2026/09/21/index), while the default stable updater installed v0.10.17. Record this release-index lag; the direct official channel upgrade is the version-selection evidence used here. The exact Hackathon stable-toolchain clause remains `待确认` with the inaccessible charter and supplement.
+- The official download page recommends the VS Code install command or the PowerShell installer on Windows. The user-profile toolchain was updated only after the project-local verification succeeded; no other machine-wide installer was run.
+- The official download page says the supported Windows installation route is the VS Code “MoonBit:install latest moonbit toolchain” command or the PowerShell installer. Task 17 used the default stable `moon upgrade` because the user explicitly requested the latest stable toolchain; it updated only the user-level `.moon` installation and completed successfully.
 
 ## Scaffold probe
 

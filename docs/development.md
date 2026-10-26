@@ -2,7 +2,7 @@
 
 ## Prerequisites and setup
 
-Use a stable MoonBit toolchain installed through the
+Use the latest stable MoonBit toolchain installed through the
 [official installation guide](https://www.moonbitlang.com/download/). Record
 `moon version --all` when changing the toolchain or CI. `moon.mod` pins the
 Mooncakes dependency versions; Moon creates `.mooncakes/` and `_build/` as local

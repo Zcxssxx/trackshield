@@ -13,7 +13,7 @@ available for MoonBit callers; see [package and library notes](README.mbt.md).
 
 ## Install and verify
 
-Install a stable MoonBit toolchain using the [official installation guide](https://www.moonbitlang.com/download/),
+Install the latest stable MoonBit toolchain using the [official installation guide](https://www.moonbitlang.com/download/),
 then run these commands from the repository root. Moon resolves the pinned
 Mooncakes dependencies declared in `moon.mod`.
 

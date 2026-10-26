@@ -6,7 +6,7 @@
 
 **Architecture:** Keep the public API and analysis model independent from filesystem access. A GPX adapter owns parsing and serialization, while geometry, collection analysis, redaction planning, and report rendering are deterministic library packages. A native CLI reads one input at a time, aggregates compact inspection results, and writes redacted copies only after an explicit write flag and successful preview.
 
-**Tech Stack:** MoonBit stable toolchain verified immediately before implementation; `2973181701/moongpx` only if its parser/serializer passes the compatibility and adversarial-input gate; `moonbitlang/async` filesystem APIs only at the native CLI boundary if their current docs confirm required directory and safe-write behavior; MoonBit core JSON/argument facilities after API discovery; GitHub Actions configuration based on the current official MoonBit workflow and community templates.
+**Tech Stack:** Latest stable MoonBit toolchain installed from the official default stable channel; `2973181701/moongpx` only if its parser/serializer passes the compatibility and adversarial-input gate; `moonbitlang/async` filesystem APIs only at the native CLI boundary if their current docs confirm required directory and safe-write behavior; MoonBit core JSON/argument facilities after API discovery; GitHub Actions configuration based on the current official MoonBit workflow and community templates.
 
 ## Global Constraints
 
@@ -111,7 +111,7 @@ pub fn default_audit_options() -> AuditOptions
 **Interfaces:** Establish module namespace `Zcxssxx/trackshield` and confirm the exact package import paths and current generated module format before adding public types.
 
 - [x] Re-open the official October landing page, formal charter, and supplemental page. Record displayed update dates, application fields and documents, project acceptance dates, rolling-review and revision policy, public-repository and source-control rules, licensing, Mooncakes, CI, and stable-toolchain requirements. Mark inaccessible or absent data as `待确认` and retain the original URLs.
-- [x] Run `moon version --all`; compare the result with latest stable release information available from an official MoonBit source. The local output was collected; an authoritative version string was not exposed by the online official sources examined, so the latest-stable comparison is still pending.
+- [x] Run `moon version --all`; compare against the official release index and the default stable updater. `moon upgrade` without `--dev` succeeded and resolved to v0.10.17 (2026-10-23). The official monthly updates index still lists v0.10.14 (2026-09-21); record that index lag and keep the inaccessible Hackathon toolchain clause pending.
 - [x] From an empty temporary directory, run `moon new <temp-path> --user Zcxssxx --name trackshield`; inspect the generated manifest, package layout, and CLI template. Do not repeat the unsupported `--dry-run` probe.
 - [x] Create the actual module metadata and package skeleton by adapting the inspected template without invoking `moon new` in this already initialized repository and without replacing `.git`, `docs/`, `findings.md`, `progress.md`, or `task_plan.md`.
 - [x] Run `moon check --deny-warn` on the generated skeleton. Expected: successful check and only intentional generated files. Result: exit 0, “Finished. moon: ran 6 tasks, now up to date”.
@@ -346,15 +346,15 @@ pub fn default_audit_options() -> AuditOptions
 
 **Files:** `.github/workflows/test.yml`, `.gitignore`, `docs/development.md`.
 
-**Interfaces:** CI uses the official `latest` MoonBit toolchain install channel and records `moon version --all`; local exact-version equality must be checked against the current official release channel before completion. The current project has no `moon.lock`; `moon.mod` pins direct versions and `moon tree --json` records the resolved transitive graph. No hosted CI claim is made until a remote run exists.
+**Interfaces:** CI uses the official default stable MoonBit toolchain install channel and records `moon version --all`; the local version was refreshed with the matching default stable `moon upgrade`. The current project has no `moon.lock`; `moon.mod` pins direct versions and `moon tree --json` records the resolved transitive graph. No hosted CI claim is made until a remote run exists.
 
-- [x] Use current official MoonBit CI/setup documentation and locally verified command help to add a workflow that checks out source, installs the selected stable toolchain, resolves and logs `moon.mod`-pinned Mooncakes dependencies, runs `moon fmt --check`, strict native check/test/build, and builds/tests the reusable library packages on each target shown to work. Do not access the user-linked GitHub reference repositories during this local-only phase.
+- [x] Use current official MoonBit CI/setup documentation and locally verified command help to add a workflow that checks out source, installs through the official default stable channel, logs its resolved toolchain and `moon.mod`-pinned Mooncakes dependency graph, runs `moon fmt --check`, strict native check/test/build, and builds/tests the reusable library packages on each target shown to work. Do not access the user-linked GitHub reference repositories during this local-only phase.
 - [x] Include `moon info` without `--deny-warn`, then assert no unintended generated interface or working-tree diff remains.
 - [x] Execute the same workflow commands locally on native. Test wasm, wasm-gc, and js only for the reusable library packages; document why the CLI/filesystem integration is native-only.
 - [x] Validate YAML syntax locally with an available parser; do not push to run hosted CI during this local-only phase. After the user allows GitHub activity and the active identity is confirmed as `Zcxssxx`, compare the workflow with the user-linked [existing CI example](https://github.com/PaiGack/moonbitlang-OSC2026/blob/main/.github/workflows/test.yml) and [MoonBit community workflow templates](https://github.com/moonbit-community/.github/tree/main/workflow-templates); record any appropriate changes for review before remote work.
 - [x] Commit: `ci: add MoonBit quality checks`.
 
-**Acceptance:** workflow syntax is parsed locally, commands match installed `moon` help, the official stable `latest` installer channel is used and its CI-resolved version is printed, native and supported library-target commands pass locally, and the still-unverified local latest-channel comparison is recorded for Task 17. Hosted CI remains unverified until GitHub work is later allowed.
+**Acceptance:** workflow syntax is parsed locally, commands match installed `moon` help, the official default stable installer channel is used and its CI-resolved version is printed, native and supported library-target commands pass locally. Hosted CI remains unverified until GitHub work is later allowed.
 
 ### Task 17: Final local verification and submission-readiness review
 
@@ -362,11 +362,11 @@ pub fn default_audit_options() -> AuditOptions
 
 **Interfaces:** No functional API changes unless verification uncovers a concrete defect; any correction returns through its package test and verification cycle.
 
-- [ ] Run and record `moon version --all` and compare with the exact CI installation. Confirm both match the current stable version selected from an official source and the current competition rule, or explain the discrepancy.
-- [ ] Run separately and record full exit status/output summaries for `moon fmt --check`, `moon check --deny-warn`, `moon test --deny-warn`, `moon build --target native --deny-warn`, supported non-native build/test targets, `moon run cmd/main -- --help`, and every documented example.
-- [ ] Run `moon info` with no warning-denial argument; inspect all `pkg.generated.mbti` changes and retain only intentional public API snapshots.
-- [ ] Count `.mbt` lines by production and tests using a reproducible PowerShell command that includes tracked `.mbt` files and excludes generated build directories. Report the exact counts and do not add nonfunctional code to hit the target.
-- [ ] Use this count command after all source changes are committed; it separates implementation from test files and excludes generated build directories:
+- [x] Run and record `moon version --all`, execute the default stable `moon upgrade` without `--dev`, and use the same default stable channel in CI. The upgrade completed successfully and resolved to v0.10.17 built 2026-10-23. Note that the official updates index's latest announcement is v0.10.14 (2026-09-21); the index lags the installed channel. The Hackathon's own toolchain clause remains `待确认` because its charter is inaccessible.
+- [x] Run separately and record exit status/output summaries for `moon fmt --check`, strict native check/test/build, supported non-native library check/test/build, `moon run cmd/main -- --help`, and every documented README example.
+- [x] Run `moon info` with no warning-denial argument; inspect tracked and untracked `pkg.generated.mbti` changes and retain only intentional public API snapshots.
+- [x] Count `.mbt` lines by production and tests using the prescribed reproducible PowerShell command over tracked `.mbt` files. Report exact counts and do not add nonfunctional code to hit the target.
+- [x] Use this count command after all source changes are committed; it separates implementation from test files and excludes generated build directories:
 
 ```powershell
 $mbtFiles = @(git ls-files -- '*.mbt' | Where-Object { $_ -notmatch '(^|/)(_build|target)/' })
@@ -380,11 +380,11 @@ $lineRows | Group-Object Kind | ForEach-Object {
 ```
 
 If the total is below 3,000, add only missing meaningful, in-scope behavior or tests that improve user value and confidence; do not report the target as met until the total reaches 3,000.
-- [ ] Inspect `git status --short`, `git diff --check`, `git log --oneline --decorate`, `git shortlog -sne`, `git remote -v`, `git branch --show-current`, all tracked top-level files, license and notices, and CI file. Confirm current local author is `Zcxssxx`, there is no remote, and every commit has an actual user-approved author identity.
-- [ ] Review the commit history for more than ten meaningful, non-empty changes with normal timestamps; record any shortfall honestly.
-- [ ] Review source scope against the design acceptance table and mark each test/doc/demo/security item pass, fail, or pending evidence.
-- [ ] Refresh the contest submission-material checklist from the formal charter. Prepare but do not submit any application. Keep items from inaccessible sources marked `待确认`.
-- [ ] Commit the final local verification record only if it adds useful reproducible evidence: `docs: record local release readiness`.
+- [x] Inspect local status, diffs, history, identity, branches, remotes, tracked files, license/notices, and workflow. Confirm author/committer identity and no remote; record that a default branch cannot be established before a remote repository exists.
+- [x] Review the commit history for more than ten meaningful, non-empty changes with normal timestamps; report the count.
+- [x] Review source scope against the design acceptance table and mark test/doc/demo/security items pass, partial, or pending evidence.
+- [x] Refresh the submission-material checklist using the accessible October landing page, prepare an unsubmitted one-page project draft, and keep charter/supplement-only items `待确认`.
+- [x] Commit the local verification and checklist records because they add reproducible evidence: `docs: record local release readiness`.
 
 **Acceptance:** all locally supported commands have recorded results; unresolved platform, dependency, rule, or hosted-CI items are explicit; local completion is not confused with remote repository or CI completion.
 
