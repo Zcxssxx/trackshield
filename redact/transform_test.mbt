@@ -455,3 +455,114 @@ test "review ordinary formatting whitespace does not prevent splitting" {
   assert_eq(parsed(file).tracks[0].segments.length(), 2)
   assert_eq(file.preview.segments_created, 1)
 }
+
+///|
+test "redacted output coordinates stay in range and outside the explicit zone" {
+  for
+    (center_lat, center_lon, radius, coordinates) in [
+      (0.0, 0.0, 150_000.0, [(0.0, 0.0), (2.0, 0.0), (0.5, 0.5), (-2.0, 0.0)]),
+      (
+        0.0,
+        179.0,
+        300_000.0,
+        [(0.0, 179.0), (0.0, -175.0), (0.0, -179.0), (89.0, 179.0)],
+      ),
+      (
+        90.0,
+        0.0,
+        20_000.0,
+        [(90.0, -180.0), (89.0, -179.999), (89.9, 90.0), (-90.0, 0.0)],
+      ),
+    ] {
+    let center = match @model.make_geo_point(center_lat, center_lon) {
+      Ok(point) => point
+      Err(_) => fail("test center should be valid")
+    }
+    let opts = match @model.make_redaction_options(center, radius, []) {
+      Ok(value) => value
+      Err(_) => fail("test radius should be valid")
+    }
+    let make_node = fn(tag : String, lat : Double, lon : Double) -> String {
+      "<\{tag} lat=\"\{lat}\" lon=\"\{lon}\"/>"
+    }
+    let waypoints = coordinates
+      .map(fn(coordinate) {
+        let (lat, lon) = coordinate
+        make_node("wpt", lat, lon)
+      })
+      .join("")
+    let route_points = coordinates
+      .map(fn(coordinate) {
+        let (lat, lon) = coordinate
+        make_node("rtept", lat, lon)
+      })
+      .join("")
+    let track_points = coordinates
+      .map(fn(coordinate) {
+        let (lat, lon) = coordinate
+        make_node("trkpt", lat, lon)
+      })
+      .join("")
+    let source = input(
+      waypoints +
+      "<rte>" +
+      route_points +
+      "</rte><trk><trkseg>" +
+      track_points +
+      "</trkseg></trk>",
+    )
+    let candidate = match
+      @redact.redact_gpx(source, opts, @model.default_input_limits()) {
+      Ok(file) => file
+      Err(diagnostic) =>
+        fail(
+          "test transformation returned \{diagnostic.code} at center \{center_lat},\{center_lon}",
+        )
+    }
+    let doc = match
+      @gpx.parse_input(
+        @model.GpxInput::new("candidate.gpx", candidate.bytes),
+        @model.default_input_limits(),
+      ) {
+      Ok(value) => value
+      Err(_) => fail("candidate parse returned diagnostics")
+    }
+    assert_eq(doc.waypoints.length(), 2)
+    assert_eq(doc.routes.length(), 1)
+    assert_eq(doc.routes[0].points.length(), 2)
+    assert_eq(doc.tracks.length(), 1)
+    assert_eq(doc.tracks[0].segments.length(), 2)
+    assert_eq(
+      doc.tracks.fold(init=0, fn(total, track) {
+        total +
+        track.segments.fold(init=0, fn(count, segment) {
+          count + segment.points.length()
+        })
+      }),
+      2,
+    )
+    let assert_safe = fn(lat : Double, lon : Double) raise {
+      assert_true(lat >= -90.0 && lat <= 90.0)
+      // GPX coordinates use the parser's half-open longitude range [-180, 180).
+      assert_true(lon >= -180.0 && lon < 180.0)
+      let point = @model.make_geo_point(lat, lon).unwrap()
+      assert_true(@geo.distance_m(center, point) > radius)
+    }
+    for waypoint in doc.waypoints {
+      assert_safe(waypoint.lat.to_double(), waypoint.lon.to_double())
+    }
+    for route in doc.routes {
+      for point in route.points {
+        assert_safe(point.lat.to_double(), point.lon.to_double())
+      }
+    }
+    for track in doc.tracks {
+      assert_true(track.segments.length() > 1)
+      for segment in track.segments {
+        for point in segment.points {
+          assert_safe(point.lat.to_double(), point.lon.to_double())
+        }
+      }
+    }
+  }
+}

@@ -329,3 +329,44 @@ async test "directory traversal skips a linked directory and collection limits a
   assert_true(count_over.stdout.contains("input.file_limit_exceeded"))
   assert_false(count_over.stdout.contains("gpx.parse_failed"))
 }
+
+///|
+async test "synthetic collections exercise the three-file audit threshold and stable output" {
+  let qualifying_paths = [
+    "testdata/qualifying/activity-a.gpx", "testdata/qualifying/activity-b.gpx", "testdata/qualifying/activity-c.gpx",
+  ]
+  let qualifying = run_cli(["audit", "testdata/qualifying", "--format", "json"])
+  assert_eq(qualifying.exit_code, 0)
+  assert_true(
+    qualifying.stdout.contains("\"repeated_locations\":[{\"id\":\"location-1\""),
+  )
+  assert_false(qualifying.stdout.contains("\"id\":\"location-2\""))
+
+  let below = run_cli(["audit", "testdata/below-threshold", "--format", "json"])
+  assert_eq(below.exit_code, 0)
+  assert_true(below.stdout.contains("\"repeated_locations\":[]"))
+
+  let repeated = run_cli(["audit", "testdata/qualifying", "--format", "json"])
+  assert_eq(qualifying.stdout, repeated.stdout)
+
+  let forward = run_cli([
+    "audit",
+    qualifying_paths[0],
+    qualifying_paths[1],
+    qualifying_paths[2],
+    "--format",
+    "json",
+  ])
+  let reverse = run_cli([
+    "audit",
+    qualifying_paths[2],
+    qualifying_paths[1],
+    qualifying_paths[0],
+    "--format",
+    "json",
+  ])
+  assert_eq(forward.exit_code, 0)
+  assert_eq(reverse.exit_code, 0)
+  assert_eq(forward.stdout, reverse.stdout)
+  assert_eq(forward.stderr, reverse.stderr)
+}
