@@ -10,6 +10,16 @@
 - `moon version --all`: moon/moonrun `0.1.20261023`, moonc `0.10.17+d971670cd` (2026-10-23). Comparison with an authoritative official latest-stable release remains pending from Task 1/17. Clean native C compilation printed upstream `moonbitlang/async` warning C4005 for `EINVAL`; no MoonBit strict diagnostics occurred.
 - Local feature commit `d026f48 feat: add preview-first redaction CLI`; author and committer are `Zcxssxx <Zcxssxx@users.noreply.github.com>`. Continue with Task 14. No GitHub identity, remote, hosted CI, or GitHub operation was accessed.
 
+## 2026-10-26 inline implementation, Task 14
+
+- Added original synthetic GPX collections under `testdata/`: three distinct files form exactly one default 500 m/three-file start-endpoint cluster; a separate two-file collection is below the minimum support threshold. `testdata/README.md` documents fixture provenance and synthetic status.
+- Added an end-to-end CLI test that audits both collections, repeats the qualifying audit to compare complete JSON output, and reverses the explicit file argument order while comparing exit status, stdout, and stderr. A direct `moon run cmd/main -- audit ...` check reported `location-1` with three files for the qualifying fixture and `none` for the below-threshold fixture.
+- Added generated redaction cases around the equator, antimeridian, and north pole. They assert exact non-vacuous retained waypoint/route/track counts, GPX coordinate ranges, two retained track segments, and that every retained point in each geometry class is outside the explicit circle. GPX longitude `180` is excluded by the pinned parser's `[-180,180)` interval; the standalone model's inclusive boundary does not change GPX validity.
+- TDD evidence: the new CLI integration test first failed on the missing testdata collection and passed after the authored files were added. The first coordinate fixture used invalid GPX longitude `180`; inspection of the pinned dependency source and tests identified its half-open range, and replacing that fixture value with `-179.999` made the property case pass. No production code changed.
+- Task 14 review confirmed collection thresholds and deterministic JSON comparisons. It prompted exact retained counts and reverse-input exit/stderr assertions; re-review found no remaining actionable items. Its `+180` suggestion was not applied because it is invalid GPX per the pinned parser.
+- Fresh verification after review fixes: `moon test --deny-warn` passed 142/142; `moon fmt --check`, `moon check --deny-warn`, `moon build --target native --deny-warn`, `moon info`, and `git diff --check` exited 0. Native build emitted upstream `moonbitlang/async` C4005 `EINVAL` macro-redefinition warning. `moon fmt --check` initially detected formatting deltas; `moon fmt` normalized them and the fresh check passed.
+- Next plan item: Task 15 documentation, examples, root OSI license, and provenance. No GitHub operation, remote setup, authenticated identity check, or hosted CI access was performed.
+
 ## 2026-10-25
 
 - User selected TrackShield after RSS/Atom was excluded by direct Mooncakes overlap.
