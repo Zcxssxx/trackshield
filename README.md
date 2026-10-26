@@ -1,6 +1,6 @@
 # TrackShield
 
-TrackShield is an offline GPX collection auditor written primarily in MoonBit.
+TrackShield is an offline GPX collection auditor and redactor written primarily in MoonBit.
 It looks for repeated start and end locations across distinct files and reports
 metadata exposure categories without copying their raw values into findings.
 Audit is read-only. A repeated endpoint is a privacy clue, not proof that a
@@ -52,6 +52,51 @@ as potentially sensitive data.
 TrackShield currently audits GPX 1.0 and 1.1 exports. Unsupported namespaces,
 malformed XML, DTD declarations, oversized inputs, and configured resource
 limit violations are diagnosed without echoing source content. The library
-also exposes deterministic text and JSON report renderers. Explicit-zone
-redaction is planned separately; audit results are never used to infer a
-redaction zone.
+also exposes deterministic text and JSON report renderers. Audit results are
+never used to infer a redaction zone.
+
+## Preview and write cleaned copies
+
+Supply an explicit circle; the default command only previews changes and never
+creates a file, directory, or staging path. `--output-dir` may be supplied during
+preview, but destination validation and creation happen only with `--write`.
+
+```sh
+moon run cmd/main -- redact examples/repeated-endpoints --center 0,0 --radius-m 100
+moon run cmd/main -- redact examples/repeated-endpoints --center 0,0 --radius-m 100 --remove-metadata creator,author_email
+moon run cmd/main -- redact examples/repeated-endpoints --center 0,0 --radius-m 100 --write --output-dir cleaned
+```
+
+`--write` explicitly confirms writing. The output directory must be new, its
+parent must already exist, and it cannot overlap any input. Inputs are processed
+in the same deterministic order as audit. Outputs use a flat mapping:
+`input/path/activity.gpx` becomes `cleaned/activity.gpx`. Duplicate basenames,
+including ASCII case variants, reject the entire batch before staging. Export
+basenames and the new directory's leaf name must use ASCII letters, digits,
+`.`, `_`, or `-`, at most 180 characters, without reserved Windows device names
+or trailing dots. Directory paths may contain Unicode. UNC, device paths,
+alternate streams and ambiguous Windows path spellings are rejected.
+
+Any unreadable, invalid, unsupported, empty-result, or untransformable input
+prevents the batch from being written. Links and reparse points at any path
+component also reject the batch. All outputs are transformed, written to a new
+staging sibling, flushed, closed, reopened and parsed before final files are
+created exclusively. Existing paths are never intentionally reused or replaced.
+Original files are opened only for reading. Summaries give file/change counts,
+published paths and stable diagnostics without source metadata or coordinates.
+Redaction exits 0 for a successful preview/write and 2 for an invalid command,
+input, destination or I/O failure.
+
+Use trusted, stable directory trees. The pinned filesystem APIs do not prevent
+another process from replacing a parent between a check and a path operation.
+The Windows rename implementation has a copy-enabled compatibility fallback,
+so publication uses exclusive per-file creation rather than claiming an atomic
+batch rename. An I/O failure during publication can leave partial sensitive
+files in the new output directory; exit 2 reports that condition. `written`
+counts only successfully revalidated files; a partial current file can also
+remain unvalidated. Inspect and
+remove that directory manually before retrying. Staging cleanup is best effort
+and failures name the staging path. On Windows, directories and files inherit
+the parent's ACL; Unix permission arguments do not set a private Windows ACL.
+Cleaned files and reports remain sensitive. See
+[formats and limits](docs/formats-and-limits.md) for the precise contract.

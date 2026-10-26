@@ -16,6 +16,10 @@ type CliConfig
 
 type CliOutcome
 
+type PreparedOutput
+
+type RedactConfig
+
 type ReportFormat derive(Eq, @debug.Debug)
 
 // Type aliases

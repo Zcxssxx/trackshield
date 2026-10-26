@@ -19,7 +19,7 @@ fn root_command() -> @argparse.Command {
   @argparse.Command(
     "trackshield",
     about="Audit GPX collections for repeated endpoint and metadata exposure",
-    subcommands=[audit_command()],
+    subcommands=[audit_command(), redact_command()],
     subcommand_required=true,
     disable_help_subcommand=true,
   )
@@ -217,6 +217,8 @@ fn cli_help(argv : Array[String]) -> String? {
   if argv.any(value => value == "--help" || value == "-h") {
     if argv.length() > 0 && argv[0] == "audit" {
       Some(audit_command().render_help())
+    } else if argv.length() > 0 && argv[0] == "redact" {
+      Some(redact_command().render_help())
     } else {
       Some(root_command().render_help())
     }

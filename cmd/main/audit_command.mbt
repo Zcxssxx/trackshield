@@ -13,6 +13,9 @@ async fn run_cli(argv : Array[String]) -> CliOutcome {
     Some(help) => return { stdout: help, stderr: "", exit_code: 0, }
     None => ()
   }
+  if argv.get(0) == Some("redact") {
+    return run_redact_cli(argv)
+  }
   let config = match parse_cli(argv) {
     Ok(config) => config
     Err(message) =>
