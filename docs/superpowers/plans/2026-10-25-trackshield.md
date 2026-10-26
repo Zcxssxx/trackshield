@@ -338,7 +338,7 @@ pub fn default_audit_options() -> AuditOptions
 - [x] Record each direct and transitive dependency name, exact version, upstream URL, license, bundled/copy status, and attribution obligations. Record test fixture origin and license; state clearly that authored fixtures are synthetic and original.
 - [x] Add an OSI-approved root license after verifying the selected SPDX identifier and include any required dependency notices without implying dependency ownership.
 - [x] Execute every README shell command on the actual project and fix any mismatch before commit.
-- [ ] Commit meaningful documentation/provenance changes: `docs: document TrackShield workflows and provenance`.
+- [x] Commit meaningful documentation/provenance changes: `docs: document TrackShield workflows and provenance` (`15b0786`).
 
 **Acceptance:** a reviewer can build and run every documented example locally, understand limitations, and trace every non-original dependency and fixture.
 
@@ -346,15 +346,15 @@ pub fn default_audit_options() -> AuditOptions
 
 **Files:** `.github/workflows/test.yml`, `.gitignore`, `docs/development.md`.
 
-**Interfaces:** CI checks the exact stable MoonBit toolchain required by the refreshed current rules and the local project; no CI claim is made until a remote CI run exists.
+**Interfaces:** CI uses the official `latest` MoonBit toolchain install channel and records `moon version --all`; local exact-version equality must be checked against the current official release channel before completion. The current project has no `moon.lock`; `moon.mod` pins direct versions and `moon tree --json` records the resolved transitive graph. No hosted CI claim is made until a remote run exists.
 
-- [ ] Use current official MoonBit CI/setup documentation and locally verified command help to add a workflow that checks out source, installs the selected stable toolchain, resolves locked Mooncakes dependencies, runs `moon fmt --check`, `moon check --deny-warn`, `moon test --deny-warn`, and builds/tests each actually supported target separately. Do not access the user-linked GitHub reference repositories during this local-only phase.
-- [ ] Include `moon info` without `--deny-warn`, then assert no unintended generated `pkg.generated.mbti` diff remains.
-- [ ] Execute the same workflow commands locally on native. Execute wasm-gc or other targets only where project dependencies and CLI boundaries support them; document skipped/unsupported targets rather than claiming coverage.
-- [ ] Validate YAML syntax locally with an available parser; do not push to run hosted CI during this local-only phase. After the user allows GitHub activity and the active identity is confirmed as `Zcxssxx`, compare the workflow with the user-linked [existing CI example](https://github.com/PaiGack/moonbitlang-OSC2026/blob/main/.github/workflows/test.yml) and [MoonBit community workflow templates](https://github.com/moonbit-community/.github/tree/main/workflow-templates); record any appropriate changes for review before remote work.
-- [ ] Commit: `ci: add MoonBit quality checks`.
+- [x] Use current official MoonBit CI/setup documentation and locally verified command help to add a workflow that checks out source, installs the selected stable toolchain, resolves and logs `moon.mod`-pinned Mooncakes dependencies, runs `moon fmt --check`, strict native check/test/build, and builds/tests the reusable library packages on each target shown to work. Do not access the user-linked GitHub reference repositories during this local-only phase.
+- [x] Include `moon info` without `--deny-warn`, then assert no unintended generated interface or working-tree diff remains.
+- [x] Execute the same workflow commands locally on native. Test wasm, wasm-gc, and js only for the reusable library packages; document why the CLI/filesystem integration is native-only.
+- [x] Validate YAML syntax locally with an available parser; do not push to run hosted CI during this local-only phase. After the user allows GitHub activity and the active identity is confirmed as `Zcxssxx`, compare the workflow with the user-linked [existing CI example](https://github.com/PaiGack/moonbitlang-OSC2026/blob/main/.github/workflows/test.yml) and [MoonBit community workflow templates](https://github.com/moonbit-community/.github/tree/main/workflow-templates); record any appropriate changes for review before remote work.
+- [x] Commit: `ci: add MoonBit quality checks`.
 
-**Acceptance:** workflow is syntactically valid, pins match refreshed rules and current stable, commands match real local help, and local results are recorded. Hosted CI remains unverified until GitHub work is later allowed.
+**Acceptance:** workflow syntax is parsed locally, commands match installed `moon` help, the official stable `latest` installer channel is used and its CI-resolved version is printed, native and supported library-target commands pass locally, and the still-unverified local latest-channel comparison is recorded for Task 17. Hosted CI remains unverified until GitHub work is later allowed.
 
 ### Task 17: Final local verification and submission-readiness review
 

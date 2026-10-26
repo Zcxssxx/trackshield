@@ -1,0 +1,72 @@
+name: MoonBit CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Native CLI and full suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the latest stable MoonBit toolchain
+        shell: bash
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Show toolchain versions
+        run: moon version --all
+      - name: Check formatting
+        run: moon fmt --check
+      - name: Check native project
+        run: moon check --target native --deny-warn
+      - name: Show resolved Mooncakes dependency graph
+        run: moon tree --json
+      - name: Run complete native suite
+        run: moon test --target native --deny-warn
+      - name: Build native CLI
+        run: moon build --target native --deny-warn
+      - name: Run text audit example
+        run: moon run cmd/main -- audit examples/repeated-endpoints
+      - name: Run JSON audit example
+        run: moon run cmd/main -- audit examples/repeated-endpoints --format json
+      - name: Run redaction preview example
+        run: moon run cmd/main -- redact examples/repeated-endpoints --center 0,0 --radius-m 100 --remove-metadata creator,author_email
+      - name: Regenerate and verify package interfaces
+        shell: bash
+        run: |
+          moon info
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+
+  portable-library:
+    name: Portable library (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm, wasm-gc, js]
+    env:
+      MOONBIT_TARGET: ${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the latest stable MoonBit toolchain
+        shell: bash
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Show toolchain versions
+        run: moon version --all
+      - name: Check portable library packages
+        run: moon check --target "$MOONBIT_TARGET" --deny-warn --no-mbti api audit geo gpx internal/xmlguard model redact report
+      - name: Show resolved Mooncakes dependency graph
+        run: moon tree --json
+      - name: Test portable library packages
+        run: moon test --target "$MOONBIT_TARGET" --deny-warn api audit geo gpx internal/xmlguard model redact report
+      - name: Build portable library packages
+        run: moon build --target "$MOONBIT_TARGET" --deny-warn api audit geo gpx internal/xmlguard model redact report

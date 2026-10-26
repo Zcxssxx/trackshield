@@ -23,9 +23,13 @@ git diff --check
 `moon info` may refresh generated package interfaces such as
 `pkg.generated.mbti`. Review generated interface changes with the source change;
 do not add unrelated generated diffs. `moon fmt --check` and `moon info` do not
-take `--deny-warn` in the current CLI. The CI workflow is added and documented
-in the next implementation step. A successful local command is not a claim
-about hosted CI.
+take `--deny-warn` in the current CLI. The local CI workflow runs the complete
+suite on native and builds/tests the library packages on `wasm`, `wasm-gc`, and
+`js`. It omits `cmd/main` and filesystem integration packages from portable
+jobs: a workspace-wide `wasm-gc` check currently fails because the pinned
+`moonbitlang/async` packages do not expose the CLI's async entrypoint and
+filesystem operations on that target. The library-only target matrix has
+passed locally. A successful local command is not a claim about hosted CI.
 
 To run the native CLI and the synthetic demonstrations, use the commands in
 the root README. The native CLI is the first-release executable target. The

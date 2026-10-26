@@ -11,8 +11,8 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 - [x] Save and self-review the written design specification; user approved it on 2026-10-25.
 - [x] Write and self-review the implementation plan; user selected inline execution on 2026-10-25.
 - [x] Implement the MoonBit library and CLI, core tests, synthetic collections, documentation, license, and dependency provenance.
-- [ ] Configure a local MoonBit CI workflow.
-- [ ] Verify with the current MoonBit stable toolchain and supported targets.
+- [x] Configure a local MoonBit CI workflow and verify its commands on supported targets.
+- [ ] Reconcile the installed MoonBit version with the newest official stable release channel.
 - [ ] Complete local submission-readiness review.
 - [ ] Only after local completion, check the active GitHub identity and perform explicitly authorized remote work.
 
@@ -36,6 +36,6 @@ Create a new, reviewable MoonBit CLI and reusable library that audits collection
 
 ## Current gate
 
-- Implementation plan execution is active in the current session on `codex/trackshield-development`. Tasks 1–15 are implemented; Task 15 adds usage/API docs, original synthetic examples, an OSI-approved root license, and exact direct/transitive dependency provenance. Its docs review findings were corrected and re-reviewed. All README shell commands were run; audit examples report one start cluster, redaction preview/write returned the documented point and metadata counts, and generated output was removed after verification. Full strict suite passes 142/142; `moon fmt --check`, `moon check --deny-warn`, native strict build, `moon info`, and `git diff --check` pass. Detailed evidence is in `.superpowers/sdd/task-15-report.md`. The upstream async Windows C4005 `EINVAL` warning remains unsuppressed. Continue with Task 16.
+- Implementation plan execution is active in the current session on `codex/trackshield-development`. Tasks 1–16 are implemented and independently reviewed. Task 15 added user/API docs, one-cluster synthetic examples, an OSI-approved root license, and exact dependency provenance; all README commands passed. Task 16 added a local CI workflow using the official latest toolchain channel, with a complete native suite and a library-only wasm/wasm-gc/js matrix. Full strict native tests pass 142/142; each portable-library matrix test passes 113/113 and each target builds. YAML parsed with PyYAML 6.0.2. Details are in `.superpowers/sdd/task-15-report.md` and `.superpowers/sdd/task-16-report.md`. The upstream async Windows C4005 `EINVAL` warning remains unsuppressed. Source counters show 4,762 production and 3,633 test MoonBit lines across 41 `.mbt` files; no code was padded to reach the 3,000-line quality target. Continue with Task 17.
 - Continue local-only work. Do not configure a GitHub remote, browse authenticated GitHub state, create a repository, push, or claim hosted CI status.
-- The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`. The official newest stable version is still to be reconciled against the installed `moon 0.1.20261023` / `moonc v0.10.17+d971670cd` before CI pins it.
+- The October landing page currently reports a 2026-10-31 registration and acceptance deadline. The formal charter and supplemental page have not yet yielded readable contents; unresolved event clauses remain `待确认` in `findings.md`. Local toolchain is `moon 0.1.20261023` / `moonc v0.10.17+d971670cd`; the official newest stable match remains unverified. CI installs the official latest channel and prints its resolved version.
